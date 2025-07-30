@@ -54,7 +54,50 @@ async function start(): Promise<void> {
     body.endFill();
     c.addChild(body);
 
-    // Paws
+    // Rear paws (drawn first so they appear behind the body)
+    const rearPawLeft = new PIXI.Graphics();
+    rearPawLeft.beginFill(0xaaaaaa);
+    rearPawLeft.drawEllipse(-25, 105, 15, 8);
+    rearPawLeft.endFill();
+    c.addChild(rearPawLeft);
+
+    const rearPawRight = new PIXI.Graphics();
+    rearPawRight.beginFill(0xaaaaaa);
+    rearPawRight.drawEllipse(25, 105, 15, 8);
+    rearPawRight.endFill();
+    c.addChild(rearPawRight);
+
+    const rearPadColor = 0xcccccc;
+    const rearLeftPads = new PIXI.Graphics();
+    rearLeftPads.beginFill(rearPadColor);
+    rearLeftPads.drawCircle(-30, 105, 3);
+    rearLeftPads.drawCircle(-25, 103, 3);
+    rearLeftPads.drawCircle(-20, 105, 3);
+    rearLeftPads.endFill();
+    c.addChild(rearLeftPads);
+
+    const rearRightPads = new PIXI.Graphics();
+    rearRightPads.beginFill(rearPadColor);
+    rearRightPads.drawCircle(20, 105, 3);
+    rearRightPads.drawCircle(25, 103, 3);
+    rearRightPads.drawCircle(30, 105, 3);
+    rearRightPads.endFill();
+    c.addChild(rearRightPads);
+
+    // Front legs
+    const legLeft = new PIXI.Graphics();
+    legLeft.beginFill(0xffffff);
+    legLeft.drawRect(-25, 70, 10, 35);
+    legLeft.endFill();
+    c.addChild(legLeft);
+
+    const legRight = new PIXI.Graphics();
+    legRight.beginFill(0xffffff);
+    legRight.drawRect(15, 70, 10, 35);
+    legRight.endFill();
+    c.addChild(legRight);
+
+    // Front paws
     const pawLeft = new PIXI.Graphics();
     pawLeft.beginFill(0xffffff);
     pawLeft.drawEllipse(-20, 105, 15, 8);
@@ -67,10 +110,28 @@ async function start(): Promise<void> {
     pawRight.endFill();
     c.addChild(pawRight);
 
+    // Toe pads for front paws
+    const pawPadColor = 0xeeeeee;
+    const pawLeftPads = new PIXI.Graphics();
+    pawLeftPads.beginFill(pawPadColor);
+    pawLeftPads.drawCircle(-25, 105, 3);
+    pawLeftPads.drawCircle(-20, 103, 3);
+    pawLeftPads.drawCircle(-15, 105, 3);
+    pawLeftPads.endFill();
+    c.addChild(pawLeftPads);
+
+    const pawRightPads = new PIXI.Graphics();
+    pawRightPads.beginFill(pawPadColor);
+    pawRightPads.drawCircle(15, 105, 3);
+    pawRightPads.drawCircle(20, 103, 3);
+    pawRightPads.drawCircle(25, 105, 3);
+    pawRightPads.endFill();
+    c.addChild(pawRightPads);
+
     // Tail
     const tail = new PIXI.Graphics();
     tail.beginFill(0xffffff);
-    tail.drawEllipse(60, 90, 25, 10);
+    tail.drawEllipse(55, 70, 25, 10);
     tail.endFill();
     c.addChild(tail);
 
@@ -80,30 +141,31 @@ async function start(): Promise<void> {
     head.drawCircle(0, 0, 35);
     head.endFill();
     head.y = -20;
+    head.sortableChildren = true;
     c.addChild(head);
 
     // Ears
     const earLeft = new PIXI.Graphics();
     earLeft.beginFill(0xffffff);
-    earLeft.drawPolygon([-20, -35, -10, -65, 0, -35]);
+    earLeft.drawPolygon([-25, -25, -40, -55, -10, -30]);
     earLeft.endFill();
     head.addChild(earLeft);
 
     const earLeftInner = new PIXI.Graphics();
     earLeftInner.beginFill(0xcccccc);
-    earLeftInner.drawPolygon([-18, -38, -10, -60, -2, -38]);
+    earLeftInner.drawPolygon([-23, -28, -35, -52, -12, -33]);
     earLeftInner.endFill();
     earLeft.addChild(earLeftInner);
 
     const earRight = new PIXI.Graphics();
     earRight.beginFill(0xffffff);
-    earRight.drawPolygon([20, -35, 10, -65, 0, -35]);
+    earRight.drawPolygon([25, -25, 40, -55, 10, -30]);
     earRight.endFill();
     head.addChild(earRight);
 
     const earRightInner = new PIXI.Graphics();
     earRightInner.beginFill(0xcccccc);
-    earRightInner.drawPolygon([18, -38, 10, -60, 2, -38]);
+    earRightInner.drawPolygon([23, -28, 35, -52, 12, -33]);
     earRightInner.endFill();
     earRight.addChild(earRightInner);
 
@@ -132,6 +194,19 @@ async function start(): Promise<void> {
     rightEye.endFill();
     head.addChild(rightEye);
 
+    // Vertical pupils
+    const pupilLeft = new PIXI.Graphics();
+    pupilLeft.beginFill(0x000000);
+    pupilLeft.drawRect(-13, -10, 2, 10);
+    pupilLeft.endFill();
+    head.addChild(pupilLeft);
+
+    const pupilRight = new PIXI.Graphics();
+    pupilRight.beginFill(0x000000);
+    pupilRight.drawRect(11, -10, 2, 10);
+    pupilRight.endFill();
+    head.addChild(pupilRight);
+
     // Muzzle area
     const muzzle = new PIXI.Graphics();
     muzzle.beginFill(0xcccccc);
@@ -155,6 +230,7 @@ async function start(): Promise<void> {
     mouth.lineTo(-5, 18);
     mouth.moveTo(0, 14);
     mouth.lineTo(5, 18);
+    mouth.zIndex = 10;
     head.addChild(mouth);
 
     // Whiskers
@@ -172,6 +248,7 @@ async function start(): Promise<void> {
     whiskers.lineTo(40, 12);
     whiskers.moveTo(20, 16);
     whiskers.lineTo(40, 18);
+    whiskers.zIndex = 11;
     head.addChild(whiskers);
 
     return c;
