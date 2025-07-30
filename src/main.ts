@@ -40,16 +40,24 @@ async function start(): Promise<void> {
     'create-avatar-btn'
   ) as HTMLButtonElement;
   const doneBtn = document.getElementById('done-btn') as HTMLButtonElement;
+  const colorButtonsDiv = document.getElementById('color-buttons') as HTMLDivElement;
+  const colorButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.color-btn')
+  );
+
+  const savedColor = window.localStorage.getItem('furColor');
+  let currentFurColor = savedColor ? parseInt(savedColor, 10) : 0xffffff;
 
   // Container for the avatar model
   const avatarContainer = new PIXI.Container();
 
-  function createCat(): PIXI.Container {
+  function createCat(furColor: number): PIXI.Container {
     const c = new PIXI.Container();
+    c.sortableChildren = true;
 
     // Body (ellipse to fake a 3D look)
     const body = new PIXI.Graphics();
-    body.beginFill(0xffffff);
+    body.beginFill(furColor);
     body.drawEllipse(0, 40, 45, 65);
     body.endFill();
     c.addChild(body);
@@ -86,26 +94,26 @@ async function start(): Promise<void> {
 
     // Front legs
     const legLeft = new PIXI.Graphics();
-    legLeft.beginFill(0xffffff);
+    legLeft.beginFill(furColor);
     legLeft.drawRect(-25, 70, 10, 35);
     legLeft.endFill();
     c.addChild(legLeft);
 
     const legRight = new PIXI.Graphics();
-    legRight.beginFill(0xffffff);
+    legRight.beginFill(furColor);
     legRight.drawRect(15, 70, 10, 35);
     legRight.endFill();
     c.addChild(legRight);
 
     // Front paws
     const pawLeft = new PIXI.Graphics();
-    pawLeft.beginFill(0xffffff);
+    pawLeft.beginFill(furColor);
     pawLeft.drawEllipse(-20, 105, 15, 8);
     pawLeft.endFill();
     c.addChild(pawLeft);
 
     const pawRight = new PIXI.Graphics();
-    pawRight.beginFill(0xffffff);
+    pawRight.beginFill(furColor);
     pawRight.drawEllipse(20, 105, 15, 8);
     pawRight.endFill();
     c.addChild(pawRight);
@@ -130,23 +138,26 @@ async function start(): Promise<void> {
 
     // Tail
     const tail = new PIXI.Graphics();
-    tail.beginFill(0xffffff);
+    tail.beginFill(furColor);
     tail.drawEllipse(55, 70, 25, 10);
     tail.endFill();
     c.addChild(tail);
 
     // Head
-    const head = new PIXI.Graphics();
-    head.beginFill(0xffffff);
-    head.drawCircle(0, 0, 35);
-    head.endFill();
+    const head = new PIXI.Container();
     head.y = -20;
     head.sortableChildren = true;
     c.addChild(head);
 
+    const headShape = new PIXI.Graphics();
+    headShape.beginFill(furColor);
+    headShape.drawCircle(0, 0, 35);
+    headShape.endFill();
+    head.addChild(headShape);
+
     // Ears
     const earLeft = new PIXI.Graphics();
-    earLeft.beginFill(0xffffff);
+    earLeft.beginFill(furColor);
     earLeft.drawPolygon([-25, -25, -40, -55, -10, -30]);
     earLeft.endFill();
     head.addChild(earLeft);
@@ -158,7 +169,7 @@ async function start(): Promise<void> {
     earLeft.addChild(earLeftInner);
 
     const earRight = new PIXI.Graphics();
-    earRight.beginFill(0xffffff);
+    earRight.beginFill(furColor);
     earRight.drawPolygon([25, -25, 40, -55, 10, -30]);
     earRight.endFill();
     head.addChild(earRight);
@@ -256,14 +267,28 @@ async function start(): Promise<void> {
     return c;
   }
 
+  function applyFurColor(color: number): void {
+    currentFurColor = color;
+    window.localStorage.setItem('furColor', String(color));
+
+    if (currentCat) {
+      avatarContainer.removeChild(currentCat);
+      currentCat.destroy();
+      currentCat = createCat(currentFurColor);
+      avatarContainer.addChild(currentCat);
+      positionAvatar();
+    }
+  }
+
   let currentCat: PIXI.Container | null = null;
 
   function showCharacterCreator(): void {
     buttonBar.style.display = 'none';
     doneBtn.style.display = 'block';
+    colorButtonsDiv.style.display = 'flex';
 
     if (!currentCat) {
-      currentCat = createCat();
+      currentCat = createCat(currentFurColor);
       avatarContainer.addChild(currentCat);
       app.stage.addChild(avatarContainer);
     }
@@ -274,6 +299,7 @@ async function start(): Promise<void> {
   function hideCharacterCreator(): void {
     buttonBar.style.display = 'flex';
     doneBtn.style.display = 'none';
+    colorButtonsDiv.style.display = 'none';
 
     if (currentCat) {
       avatarContainer.removeChild(currentCat);
@@ -290,6 +316,14 @@ async function start(): Promise<void> {
 
   createAvatarBtn.addEventListener('click', showCharacterCreator);
   doneBtn.addEventListener('click', hideCharacterCreator);
+
+  colorButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const colorStr = btn.dataset.color ?? '#ffffff';
+      const color = parseInt(colorStr.replace('#', ''), 16);
+      applyFurColor(color);
+    });
+  });
 
   app.renderer.on('resize', positionAvatar);
 
