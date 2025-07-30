@@ -34,6 +34,100 @@ async function start(): Promise<void> {
   drawTrees();
   app.renderer.on('resize', drawTrees);
 
+  // --- Character creator elements ---
+  const buttonBar = document.getElementById('button-bar') as HTMLDivElement;
+  const createAvatarBtn = document.getElementById(
+    'create-avatar-btn'
+  ) as HTMLButtonElement;
+  const doneBtn = document.getElementById('done-btn') as HTMLButtonElement;
+
+  // Container for the avatar model
+  const avatarContainer = new PIXI.Container();
+
+  function createCat(): PIXI.Container {
+    const c = new PIXI.Container();
+
+    // Body (ellipse to fake a 3D look)
+    const body = new PIXI.Graphics();
+    body.beginFill(0xffffff);
+    body.drawEllipse(0, 40, 45, 65);
+    body.endFill();
+    c.addChild(body);
+
+    // Head
+    const head = new PIXI.Graphics();
+    head.beginFill(0xffffff);
+    head.drawCircle(0, 0, 35);
+    head.endFill();
+    head.y = -20;
+    c.addChild(head);
+
+    // Ears
+    const earLeft = new PIXI.Graphics();
+    earLeft.beginFill(0xffffff);
+    earLeft.drawPolygon([-20, -35, -10, -65, 0, -35]);
+    earLeft.endFill();
+    head.addChild(earLeft);
+
+    const earRight = new PIXI.Graphics();
+    earRight.beginFill(0xffffff);
+    earRight.drawPolygon([20, -35, 10, -65, 0, -35]);
+    earRight.endFill();
+    head.addChild(earRight);
+
+    // Eyes
+    const leftEye = new PIXI.Graphics();
+    leftEye.beginFill(0x00ff00);
+    leftEye.drawCircle(-12, -5, 6);
+    leftEye.endFill();
+    head.addChild(leftEye);
+
+    const rightEye = new PIXI.Graphics();
+    rightEye.beginFill(0x00ff00);
+    rightEye.drawCircle(12, -5, 6);
+    rightEye.endFill();
+    head.addChild(rightEye);
+
+    return c;
+  }
+
+  let currentCat: PIXI.Container | null = null;
+
+  function showCharacterCreator(): void {
+    buttonBar.style.display = 'none';
+    doneBtn.style.display = 'block';
+
+    if (!currentCat) {
+      currentCat = createCat();
+      avatarContainer.addChild(currentCat);
+      app.stage.addChild(avatarContainer);
+    }
+
+    positionAvatar();
+  }
+
+  function hideCharacterCreator(): void {
+    buttonBar.style.display = 'flex';
+    doneBtn.style.display = 'none';
+
+    if (currentCat) {
+      avatarContainer.removeChild(currentCat);
+      app.stage.removeChild(avatarContainer);
+      currentCat.destroy();
+      currentCat = null;
+    }
+  }
+
+  function positionAvatar(): void {
+    if (!currentCat) return;
+    currentCat.position.set(app.screen.width / 2, app.screen.height / 2);
+  }
+
+  createAvatarBtn.addEventListener('click', showCharacterCreator);
+  doneBtn.addEventListener('click', hideCharacterCreator);
+
+  app.renderer.on('resize', positionAvatar);
+
   // Helper to create a pine tree graphic. The "x" argument represents the
   // horizontal center of the tree and "y" is the bottom of the tree. The tree
   // is drawn using only green leaves with a couple of zig-zags for a slightly
