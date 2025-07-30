@@ -7,9 +7,24 @@
   <script type="module" src="/src/main.ts"></script>
   <style>
     body { margin: 0; overflow: hidden; }
+    #button-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      position: absolute;
+      top: 10px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
   </style>
 </head>
 <body>
+  <div id="button-bar">
+    <button id="create-avatar-btn">Create Avatar</button>
+    <button id="settings-btn">Settings</button>
+    <button id="quit-btn">Quit</button>
+  </div>
   <canvas id="game-canvas"></canvas>
 </body>
 </html>
