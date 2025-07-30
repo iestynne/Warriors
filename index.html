@@ -17,6 +17,24 @@
       transform: translate(-50%, -50%);
       z-index: 100;
     }
+
+    #color-buttons {
+      position: absolute;
+      top: 50%;
+      left: calc(50% + 120px);
+      transform: translateY(-50%);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .color-btn {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #444;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -27,5 +45,13 @@
   </div>
   <canvas id="game-canvas"></canvas>
   <button id="done-btn" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100;">Done</button>
+  <div id="color-buttons">
+    <button class="color-btn" data-color="#ffffff" style="background:#ffffff"></button>
+    <button class="color-btn" data-color="#808080" style="background:#808080"></button>
+    <button class="color-btn" data-color="#000000" style="background:#000000"></button>
+    <button class="color-btn" data-color="#ff9900" style="background:#ff9900"></button>
+    <button class="color-btn" data-color="#8b4513" style="background:#8b4513"></button>
+    <button class="color-btn" data-color="#f5deb3" style="background:#f5deb3"></button>
+  </div>
 </body>
 </html>
