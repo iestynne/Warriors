@@ -10,6 +10,30 @@ async function start(): Promise<void> {
     backgroundColor: 0x1099bb,
   });
 
+  const trees: PIXI.Graphics[] = [];
+
+  function drawTrees(): void {
+    for (const t of trees) {
+      t.destroy();
+    }
+    trees.length = 0;
+
+    const numTrees = 5;
+    const spacing = app.screen.width / numTrees;
+    const treeWidth = spacing;
+    const treeHeight = treeWidth * 1.8;
+    for (let i = 0; i < numTrees; i++) {
+      const x = spacing * (i + 0.5);
+      const tree = createPineTree(x, app.screen.height, treeWidth, treeHeight);
+      trees.push(tree);
+      app.stage.addChild(tree);
+    }
+  }
+
+  // Draw the initial trees and update them whenever the renderer size changes.
+  drawTrees();
+  app.renderer.on('resize', drawTrees);
+
   // Helper to create a pine tree graphic. The "x" argument represents the
   // horizontal center of the tree and "y" is the bottom of the tree. The tree
   // is drawn using only green leaves with a couple of zig-zags for a slightly
@@ -37,17 +61,8 @@ async function start(): Promise<void> {
     return g;
   }
 
-  // Create five trees that span the width of the canvas and sit along the
-  // bottom edge of the screen.
-  const numTrees = 5;
-  const spacing = app.screen.width / numTrees;
-  const treeWidth = spacing; // fill the available width
-  const treeHeight = treeWidth * 1.8; // proportionally tall
-  for (let i = 0; i < numTrees; i++) {
-    const x = spacing * (i + 0.5);
-    const tree = createPineTree(x, app.screen.height, treeWidth, treeHeight);
-    app.stage.addChild(tree);
-  }
+  // Initial draw and resize handling is above. Everything else can respond
+  // automatically as the renderer resizes.
 
 }
 
