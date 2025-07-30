@@ -24,9 +24,22 @@
       left: calc(50% + 120px);
       transform: translateY(-50%);
       display: none;
-      flex-direction: column;
-      gap: 8px;
+      flex-direction: row;
+      gap: 20px;
       z-index: 100;
+    }
+
+    .color-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .column-label {
+      color: #ffffff;
+      font-family: sans-serif;
+      font-size: 14px;
     }
 
     .color-btn {
@@ -46,12 +59,50 @@
   <canvas id="game-canvas"></canvas>
   <button id="done-btn" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100;">Done</button>
   <div id="color-buttons">
-    <button class="color-btn" data-color="#ffffff" style="background:#ffffff"></button>
-    <button class="color-btn" data-color="#808080" style="background:#808080"></button>
-    <button class="color-btn" data-color="#000000" style="background:#000000"></button>
-    <button class="color-btn" data-color="#ff9900" style="background:#ff9900"></button>
-    <button class="color-btn" data-color="#8b4513" style="background:#8b4513"></button>
-    <button class="color-btn" data-color="#f5deb3" style="background:#f5deb3"></button>
+    <div class="color-column">
+      <div class="column-label">Ears</div>
+      <button class="color-btn" data-part="ears" data-color="#ffffff" style="background:#ffffff"></button>
+      <button class="color-btn" data-part="ears" data-color="#ffcccc" style="background:#ffcccc"></button>
+      <button class="color-btn" data-part="ears" data-color="#cc9966" style="background:#cc9966"></button>
+      <button class="color-btn" data-part="ears" data-color="#000000" style="background:#000000"></button>
+    </div>
+    <div class="color-column">
+      <div class="column-label">Body</div>
+      <button class="color-btn" data-part="body" data-color="#ffffff" style="background:#ffffff"></button>
+      <button class="color-btn" data-part="body" data-color="#808080" style="background:#808080"></button>
+      <button class="color-btn" data-part="body" data-color="#000000" style="background:#000000"></button>
+      <button class="color-btn" data-part="body" data-color="#ff9900" style="background:#ff9900"></button>
+      <button class="color-btn" data-part="body" data-color="#8b4513" style="background:#8b4513"></button>
+      <button class="color-btn" data-part="body" data-color="#f5deb3" style="background:#f5deb3"></button>
+    </div>
+    <div class="color-column">
+      <div class="column-label">Muzzle</div>
+      <button class="color-btn" data-part="muzzle" data-color="#cccccc" style="background:#cccccc"></button>
+      <button class="color-btn" data-part="muzzle" data-color="#ffe4c4" style="background:#ffe4c4"></button>
+      <button class="color-btn" data-part="muzzle" data-color="#f5deb3" style="background:#f5deb3"></button>
+      <button class="color-btn" data-part="muzzle" data-color="#ffffff" style="background:#ffffff"></button>
+    </div>
+    <div class="color-column">
+      <div class="column-label">Paws</div>
+      <button class="color-btn" data-part="paws" data-color="#aaaaaa" style="background:#aaaaaa"></button>
+      <button class="color-btn" data-part="paws" data-color="#f5deb3" style="background:#f5deb3"></button>
+      <button class="color-btn" data-part="paws" data-color="#ffdab9" style="background:#ffdab9"></button>
+      <button class="color-btn" data-part="paws" data-color="#dcdcdc" style="background:#dcdcdc"></button>
+    </div>
+    <div class="color-column">
+      <div class="column-label">Tail</div>
+      <button class="color-btn" data-part="tail" data-color="#ffffff" style="background:#ffffff"></button>
+      <button class="color-btn" data-part="tail" data-color="#000000" style="background:#000000"></button>
+      <button class="color-btn" data-part="tail" data-color="#8b4513" style="background:#8b4513"></button>
+      <button class="color-btn" data-part="tail" data-color="#ff9900" style="background:#ff9900"></button>
+    </div>
+    <div class="color-column">
+      <div class="column-label">Eyes</div>
+      <button class="color-btn" data-part="eyes" data-color="#00ff00" style="background:#00ff00"></button>
+      <button class="color-btn" data-part="eyes" data-color="#0000ff" style="background:#0000ff"></button>
+      <button class="color-btn" data-part="eyes" data-color="#ffff00" style="background:#ffff00"></button>
+      <button class="color-btn" data-part="eyes" data-color="#ff9900" style="background:#ff9900"></button>
+    </div>
   </div>
 </body>
 </html>

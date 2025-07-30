@@ -1,5 +1,26 @@
 import * as PIXI from 'pixi.js';
 
+type CatColors = {
+  ears: number;
+  body: number;
+  muzzle: number;
+  paws: number;
+  tail: number;
+  eyes: number;
+};
+
+function shadeColor(color: number, percent: number): number {
+  const r = (color >> 16) & 0xff;
+  const g = (color >> 8) & 0xff;
+  const b = color & 0xff;
+  const t = percent < 0 ? 0 : 255;
+  const p = Math.abs(percent);
+  const nr = Math.round((t - r) * p) + r;
+  const ng = Math.round((t - g) * p) + g;
+  const nb = Math.round((t - b) * p) + b;
+  return (nr << 16) + (ng << 8) + nb;
+}
+
 // PixiJS v8 requires an explicit initialization step. Wrap the setup in an
 // async function so we can await `app.init()` without using top-level await.
 async function start(): Promise<void> {
@@ -45,32 +66,46 @@ async function start(): Promise<void> {
     document.querySelectorAll<HTMLButtonElement>('.color-btn')
   );
 
-  const savedColor = window.localStorage.getItem('furColor');
-  let currentFurColor = savedColor ? parseInt(savedColor, 10) : 0xffffff;
+  const defaultColors: CatColors = {
+    ears: 0xffffff,
+    body: 0xffffff,
+    muzzle: 0xcccccc,
+    paws: 0xaaaaaa,
+    tail: 0xffffff,
+    eyes: 0x00ff00,
+  };
+
+  let currentColors: CatColors = { ...defaultColors };
 
   // Container for the avatar model
   const avatarContainer = new PIXI.Container();
 
-  function createCat(furColor: number): PIXI.Container {
+  function createCat(colors: CatColors): PIXI.Container {
     const c = new PIXI.Container();
     c.sortableChildren = true;
 
     // Body (ellipse to fake a 3D look)
     const body = new PIXI.Graphics();
-    body.beginFill(furColor);
+    body.beginFill(colors.body);
     body.drawEllipse(0, 40, 45, 65);
     body.endFill();
     c.addChild(body);
 
+    const belly = new PIXI.Graphics();
+    belly.beginFill(shadeColor(colors.body, 0.2));
+    belly.drawEllipse(0, 55, 35, 40);
+    belly.endFill();
+    c.addChild(belly);
+
     // Rear paws (drawn first so they appear behind the body)
     const rearPawLeft = new PIXI.Graphics();
-    rearPawLeft.beginFill(0xaaaaaa);
+    rearPawLeft.beginFill(colors.paws);
     rearPawLeft.drawEllipse(-25, 105, 15, 8);
     rearPawLeft.endFill();
     c.addChild(rearPawLeft);
 
     const rearPawRight = new PIXI.Graphics();
-    rearPawRight.beginFill(0xaaaaaa);
+    rearPawRight.beginFill(colors.paws);
     rearPawRight.drawEllipse(25, 105, 15, 8);
     rearPawRight.endFill();
     c.addChild(rearPawRight);
@@ -94,26 +129,26 @@ async function start(): Promise<void> {
 
     // Front legs
     const legLeft = new PIXI.Graphics();
-    legLeft.beginFill(furColor);
+    legLeft.beginFill(colors.body);
     legLeft.drawRect(-25, 70, 10, 35);
     legLeft.endFill();
     c.addChild(legLeft);
 
     const legRight = new PIXI.Graphics();
-    legRight.beginFill(furColor);
+    legRight.beginFill(colors.body);
     legRight.drawRect(15, 70, 10, 35);
     legRight.endFill();
     c.addChild(legRight);
 
     // Front paws
     const pawLeft = new PIXI.Graphics();
-    pawLeft.beginFill(furColor);
+    pawLeft.beginFill(colors.paws);
     pawLeft.drawEllipse(-20, 105, 15, 8);
     pawLeft.endFill();
     c.addChild(pawLeft);
 
     const pawRight = new PIXI.Graphics();
-    pawRight.beginFill(furColor);
+    pawRight.beginFill(colors.paws);
     pawRight.drawEllipse(20, 105, 15, 8);
     pawRight.endFill();
     c.addChild(pawRight);
@@ -138,7 +173,7 @@ async function start(): Promise<void> {
 
     // Tail
     const tail = new PIXI.Graphics();
-    tail.beginFill(furColor);
+    tail.beginFill(colors.tail);
     tail.drawEllipse(55, 70, 25, 10);
     tail.endFill();
     c.addChild(tail);
@@ -150,14 +185,14 @@ async function start(): Promise<void> {
     c.addChild(head);
 
     const headShape = new PIXI.Graphics();
-    headShape.beginFill(furColor);
+    headShape.beginFill(colors.body);
     headShape.drawCircle(0, 0, 35);
     headShape.endFill();
     head.addChild(headShape);
 
     // Ears
     const earLeft = new PIXI.Graphics();
-    earLeft.beginFill(furColor);
+    earLeft.beginFill(colors.ears);
     earLeft.drawPolygon([-25, -25, -40, -55, -10, -30]);
     earLeft.endFill();
     head.addChild(earLeft);
@@ -169,7 +204,7 @@ async function start(): Promise<void> {
     earLeft.addChild(earLeftInner);
 
     const earRight = new PIXI.Graphics();
-    earRight.beginFill(furColor);
+    earRight.beginFill(colors.ears);
     earRight.drawPolygon([25, -25, 40, -55, 10, -30]);
     earRight.endFill();
     head.addChild(earRight);
@@ -194,13 +229,13 @@ async function start(): Promise<void> {
     head.addChild(rightEyeShade);
 
     const leftEye = new PIXI.Graphics();
-    leftEye.beginFill(0x00ff00);
+    leftEye.beginFill(colors.eyes);
     leftEye.drawCircle(-12, -5, 6);
     leftEye.endFill();
     head.addChild(leftEye);
 
     const rightEye = new PIXI.Graphics();
-    rightEye.beginFill(0x00ff00);
+    rightEye.beginFill(colors.eyes);
     rightEye.drawCircle(12, -5, 6);
     rightEye.endFill();
     head.addChild(rightEye);
@@ -220,7 +255,7 @@ async function start(): Promise<void> {
 
     // Muzzle area
     const muzzle = new PIXI.Graphics();
-    muzzle.beginFill(0xcccccc);
+    muzzle.beginFill(colors.muzzle);
     muzzle.drawEllipse(0, 10, 20, 15);
     muzzle.endFill();
     head.addChild(muzzle);
@@ -234,7 +269,7 @@ async function start(): Promise<void> {
 
     // Mouth
     const mouth = new PIXI.Graphics();
-    mouth.lineStyle({ width: 2, color: 0x000000 });
+    mouth.setStrokeStyle({ width: 2, color: 0x000000 });
     mouth.moveTo(0, 8);
     mouth.lineTo(0, 14);
     mouth.moveTo(0, 14);
@@ -247,7 +282,7 @@ async function start(): Promise<void> {
 
     // Whiskers
     const whiskers = new PIXI.Graphics();
-    whiskers.lineStyle({ width: 2, color: 0x999999 });
+    whiskers.setStrokeStyle({ width: 2, color: 0x999999 });
     whiskers.moveTo(-20, 8);
     whiskers.lineTo(-40, 6);
     whiskers.moveTo(-20, 12);
@@ -267,14 +302,13 @@ async function start(): Promise<void> {
     return c;
   }
 
-  function applyFurColor(color: number): void {
-    currentFurColor = color;
-    window.localStorage.setItem('furColor', String(color));
+  function applyPartColor(part: keyof CatColors, color: number): void {
+    (currentColors as any)[part] = color;
 
     if (currentCat) {
       avatarContainer.removeChild(currentCat);
       currentCat.destroy();
-      currentCat = createCat(currentFurColor);
+      currentCat = createCat(currentColors);
       avatarContainer.addChild(currentCat);
       positionAvatar();
     }
@@ -288,7 +322,7 @@ async function start(): Promise<void> {
     colorButtonsDiv.style.display = 'flex';
 
     if (!currentCat) {
-      currentCat = createCat(currentFurColor);
+      currentCat = createCat(currentColors);
       avatarContainer.addChild(currentCat);
       app.stage.addChild(avatarContainer);
     }
@@ -320,8 +354,11 @@ async function start(): Promise<void> {
   colorButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const colorStr = btn.dataset.color ?? '#ffffff';
+      const part = btn.dataset.part as keyof CatColors | undefined;
       const color = parseInt(colorStr.replace('#', ''), 16);
-      applyFurColor(color);
+      if (part) {
+        applyPartColor(part, color);
+      }
     });
   });
 
