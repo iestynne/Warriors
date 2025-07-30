@@ -9,7 +9,7 @@ type CatColors = {
   tail: number;
   tailTip: number;
   eyes: number;
-  nose: number;
+  nose: number | 'halfBlackGrey';
 };
 
 function shadeColor(color: number, percent: number): number {
@@ -82,6 +82,15 @@ async function start(): Promise<void> {
   };
 
   let currentColors: CatColors = { ...defaultColors };
+  const savedColors = localStorage.getItem('catColors');
+  if (savedColors) {
+    try {
+      const parsed = JSON.parse(savedColors) as Partial<CatColors>;
+      currentColors = { ...currentColors, ...parsed };
+    } catch {
+      /* ignore malformed saved data */
+    }
+  }
 
   // Container for the avatar model
   const avatarContainer = new PIXI.Container();
@@ -136,26 +145,26 @@ async function start(): Promise<void> {
     // Front legs
     const legLeft = new PIXI.Graphics();
     legLeft.beginFill(colors.body);
-    legLeft.drawRect(-27, 70, 14, 70);
+    legLeft.drawRect(-27, 55, 14, 60);
     legLeft.endFill();
     c.addChild(legLeft);
 
     const legRight = new PIXI.Graphics();
     legRight.beginFill(colors.body);
-    legRight.drawRect(13, 70, 14, 70);
+    legRight.drawRect(13, 55, 14, 60);
     legRight.endFill();
     c.addChild(legRight);
 
     // Front paws
     const pawLeft = new PIXI.Graphics();
     pawLeft.beginFill(colors.paws);
-    pawLeft.drawEllipse(-20, 140, 15, 8);
+    pawLeft.drawEllipse(-20, 120, 15, 8);
     pawLeft.endFill();
     c.addChild(pawLeft);
 
     const pawRight = new PIXI.Graphics();
     pawRight.beginFill(colors.paws);
-    pawRight.drawEllipse(20, 140, 15, 8);
+    pawRight.drawEllipse(20, 120, 15, 8);
     pawRight.endFill();
     c.addChild(pawRight);
 
@@ -163,31 +172,31 @@ async function start(): Promise<void> {
     const pawPadColor = 0xeeeeee;
     const pawLeftPads = new PIXI.Graphics();
     pawLeftPads.beginFill(pawPadColor);
-    pawLeftPads.drawCircle(-25, 140, 3);
-    pawLeftPads.drawCircle(-20, 138, 3);
-    pawLeftPads.drawCircle(-15, 140, 3);
+    pawLeftPads.drawCircle(-25, 120, 3);
+    pawLeftPads.drawCircle(-20, 118, 3);
+    pawLeftPads.drawCircle(-15, 120, 3);
     pawLeftPads.endFill();
     c.addChild(pawLeftPads);
 
     const pawRightPads = new PIXI.Graphics();
     pawRightPads.beginFill(pawPadColor);
-    pawRightPads.drawCircle(15, 140, 3);
-    pawRightPads.drawCircle(20, 138, 3);
-    pawRightPads.drawCircle(25, 140, 3);
+    pawRightPads.drawCircle(15, 120, 3);
+    pawRightPads.drawCircle(20, 118, 3);
+    pawRightPads.drawCircle(25, 120, 3);
     pawRightPads.endFill();
     c.addChild(pawRightPads);
 
     // Tail drawn behind the body, lying on the ground with a curl
     const tailBase = new PIXI.Graphics();
     tailBase.beginFill(colors.tail);
-    tailBase.drawEllipse(50, 108, 40, 12);
+    tailBase.drawRoundedRect(40, 96, 50, 8, 4);
     tailBase.endFill();
     tailBase.zIndex = -1;
     c.addChild(tailBase);
 
     const tailTip = new PIXI.Graphics();
     tailTip.beginFill(colors.tailTip);
-    tailTip.drawEllipse(85, 90, 12, 20);
+    tailTip.drawRoundedRect(90, 96, 18, 8, 4);
     tailTip.endFill();
     tailTip.zIndex = -1;
     c.addChild(tailTip);
@@ -276,9 +285,22 @@ async function start(): Promise<void> {
 
     // Nose
     const nose = new PIXI.Graphics();
-    nose.beginFill(colors.nose);
-    nose.drawCircle(0, 5, 3);
-    nose.endFill();
+    if (colors.nose === 'halfBlackGrey') {
+      nose.beginFill(0x000000);
+      nose.moveTo(0, 5);
+      nose.arc(0, 5, 3, Math.PI / 2, (3 * Math.PI) / 2);
+      nose.closePath();
+      nose.endFill();
+      nose.beginFill(0x808080);
+      nose.moveTo(0, 5);
+      nose.arc(0, 5, 3, (3 * Math.PI) / 2, Math.PI / 2);
+      nose.closePath();
+      nose.endFill();
+    } else {
+      nose.beginFill(colors.nose as number);
+      nose.drawCircle(0, 5, 3);
+      nose.endFill();
+    }
     head.addChild(nose);
 
     // Mouth
@@ -316,8 +338,10 @@ async function start(): Promise<void> {
     return c;
   }
 
-  function applyPartColor(part: keyof CatColors, color: number): void {
+  function applyPartColor(part: keyof CatColors, color: number | 'halfBlackGrey'): void {
     (currentColors as any)[part] = color;
+
+    localStorage.setItem('catColors', JSON.stringify(currentColors));
 
     if (currentColors.belly === currentColors.body) {
       currentColors.belly = shadeColor(currentColors.body, 0.2);
@@ -371,10 +395,16 @@ async function start(): Promise<void> {
 
   colorButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
-      const colorStr = btn.dataset.color ?? '#ffffff';
       const part = btn.dataset.part as keyof CatColors | undefined;
-      const color = parseInt(colorStr.replace('#', ''), 16);
-      if (part) {
+      const special = btn.dataset.special;
+      const colorStr = btn.dataset.color;
+      let color: number | 'halfBlackGrey' | null = null;
+      if (special === 'halfBlackGrey') {
+        color = 'halfBlackGrey';
+      } else if (colorStr) {
+        color = parseInt(colorStr.replace('#', ''), 16);
+      }
+      if (part && color !== null) {
         applyPartColor(part, color);
       }
     });
