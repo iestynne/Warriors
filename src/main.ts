@@ -230,6 +230,7 @@ async function start(): Promise<void> {
     mouth.lineTo(-5, 18);
     mouth.moveTo(0, 14);
     mouth.lineTo(5, 18);
+    mouth.stroke();
     mouth.zIndex = 10;
     head.addChild(mouth);
 
@@ -248,6 +249,7 @@ async function start(): Promise<void> {
     whiskers.lineTo(40, 12);
     whiskers.moveTo(20, 16);
     whiskers.lineTo(40, 18);
+    whiskers.stroke();
     whiskers.zIndex = 11;
     head.addChild(whiskers);
 
