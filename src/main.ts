@@ -54,6 +54,26 @@ async function start(): Promise<void> {
     body.endFill();
     c.addChild(body);
 
+    // Paws
+    const pawLeft = new PIXI.Graphics();
+    pawLeft.beginFill(0xffffff);
+    pawLeft.drawEllipse(-20, 105, 15, 8);
+    pawLeft.endFill();
+    c.addChild(pawLeft);
+
+    const pawRight = new PIXI.Graphics();
+    pawRight.beginFill(0xffffff);
+    pawRight.drawEllipse(20, 105, 15, 8);
+    pawRight.endFill();
+    c.addChild(pawRight);
+
+    // Tail
+    const tail = new PIXI.Graphics();
+    tail.beginFill(0xffffff);
+    tail.drawEllipse(60, 90, 25, 10);
+    tail.endFill();
+    c.addChild(tail);
+
     // Head
     const head = new PIXI.Graphics();
     head.beginFill(0xffffff);
@@ -69,13 +89,37 @@ async function start(): Promise<void> {
     earLeft.endFill();
     head.addChild(earLeft);
 
+    const earLeftInner = new PIXI.Graphics();
+    earLeftInner.beginFill(0xcccccc);
+    earLeftInner.drawPolygon([-18, -38, -10, -60, -2, -38]);
+    earLeftInner.endFill();
+    earLeft.addChild(earLeftInner);
+
     const earRight = new PIXI.Graphics();
     earRight.beginFill(0xffffff);
     earRight.drawPolygon([20, -35, 10, -65, 0, -35]);
     earRight.endFill();
     head.addChild(earRight);
 
-    // Eyes
+    const earRightInner = new PIXI.Graphics();
+    earRightInner.beginFill(0xcccccc);
+    earRightInner.drawPolygon([18, -38, 10, -60, 2, -38]);
+    earRightInner.endFill();
+    earRight.addChild(earRightInner);
+
+    // Eyes with shading
+    const leftEyeShade = new PIXI.Graphics();
+    leftEyeShade.beginFill(0xcccccc);
+    leftEyeShade.drawCircle(-12, -5, 8);
+    leftEyeShade.endFill();
+    head.addChild(leftEyeShade);
+
+    const rightEyeShade = new PIXI.Graphics();
+    rightEyeShade.beginFill(0xcccccc);
+    rightEyeShade.drawCircle(12, -5, 8);
+    rightEyeShade.endFill();
+    head.addChild(rightEyeShade);
+
     const leftEye = new PIXI.Graphics();
     leftEye.beginFill(0x00ff00);
     leftEye.drawCircle(-12, -5, 6);
@@ -87,6 +131,48 @@ async function start(): Promise<void> {
     rightEye.drawCircle(12, -5, 6);
     rightEye.endFill();
     head.addChild(rightEye);
+
+    // Muzzle area
+    const muzzle = new PIXI.Graphics();
+    muzzle.beginFill(0xcccccc);
+    muzzle.drawEllipse(0, 10, 20, 15);
+    muzzle.endFill();
+    head.addChild(muzzle);
+
+    // Nose
+    const nose = new PIXI.Graphics();
+    nose.beginFill(0x000000);
+    nose.drawCircle(0, 5, 3);
+    nose.endFill();
+    head.addChild(nose);
+
+    // Mouth
+    const mouth = new PIXI.Graphics();
+    mouth.lineStyle({ width: 2, color: 0x000000 });
+    mouth.moveTo(0, 8);
+    mouth.lineTo(0, 14);
+    mouth.moveTo(0, 14);
+    mouth.lineTo(-5, 18);
+    mouth.moveTo(0, 14);
+    mouth.lineTo(5, 18);
+    head.addChild(mouth);
+
+    // Whiskers
+    const whiskers = new PIXI.Graphics();
+    whiskers.lineStyle({ width: 2, color: 0x999999 });
+    whiskers.moveTo(-20, 8);
+    whiskers.lineTo(-40, 6);
+    whiskers.moveTo(-20, 12);
+    whiskers.lineTo(-40, 12);
+    whiskers.moveTo(-20, 16);
+    whiskers.lineTo(-40, 18);
+    whiskers.moveTo(20, 8);
+    whiskers.lineTo(40, 6);
+    whiskers.moveTo(20, 12);
+    whiskers.lineTo(40, 12);
+    whiskers.moveTo(20, 16);
+    whiskers.lineTo(40, 18);
+    head.addChild(whiskers);
 
     return c;
   }
