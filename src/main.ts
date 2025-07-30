@@ -10,28 +10,44 @@ async function start(): Promise<void> {
     backgroundColor: 0x1099bb,
   });
 
-  // Helper to create a simple pine tree using PIXI.Graphics
-  function createPineTree(x: number, y: number): PIXI.Graphics {
+  // Helper to create a pine tree graphic. The "x" argument represents the
+  // horizontal center of the tree and "y" is the bottom of the tree. The tree
+  // is drawn using only green leaves with a couple of zig-zags for a slightly
+  // more detailed look.
+  function createPineTree(x: number, y: number, width: number, height: number): PIXI.Graphics {
     const g = new PIXI.Graphics();
-    // Draw the green pine canopy as a triangle
     g.beginFill(0x228b22);
-    g.drawPolygon([0, 0, 25, -40, 50, 0]);
+    // Draw a canopy with a couple of zig-zags. The polygon is scaled based on
+    // the provided width and height so the trees can fill the screen evenly.
+    const halfW = width / 2;
+    const zig = width / 5; // size of the zig-zag inset
+    g.drawPolygon([
+      -halfW, 0,
+      -halfW + zig, -height * 0.3,
+      -halfW + zig * 0.5, -height * 0.3,
+      0, -height,
+      halfW - zig * 0.5, -height * 0.3,
+      halfW - zig, -height * 0.3,
+      halfW, 0,
+    ]);
     g.endFill();
-    // Draw the brown trunk
-    g.beginFill(0x8b4513);
-    g.drawRect(20, 0, 10, 20);
-    g.endFill();
-    g.x = x;
-    g.y = y;
+
+    // Position the tree so that (x, y) corresponds to the bottom center
+    g.position.set(x, y);
     return g;
   }
 
-  // Position a few trees near the top of the screen, below the buttons
-  const treePositions = [60, 160, 260, 360];
-  treePositions.forEach((x) => {
-    const tree = createPineTree(x, 70);
+  // Create five trees that span the width of the canvas and sit along the
+  // bottom edge of the screen.
+  const numTrees = 5;
+  const spacing = app.screen.width / numTrees;
+  const treeWidth = spacing; // fill the available width
+  const treeHeight = treeWidth * 1.8; // proportionally tall
+  for (let i = 0; i < numTrees; i++) {
+    const x = spacing * (i + 0.5);
+    const tree = createPineTree(x, app.screen.height, treeWidth, treeHeight);
     app.stage.addChild(tree);
-  });
+  }
 
 }
 
