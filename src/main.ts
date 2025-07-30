@@ -3,6 +3,7 @@ import * as PIXI from 'pixi.js';
 type CatColors = {
   ears: number;
   body: number;
+  belly: number;
   muzzle: number;
   paws: number;
   tail: number;
@@ -69,6 +70,7 @@ async function start(): Promise<void> {
   const defaultColors: CatColors = {
     ears: 0xffffff,
     body: 0xffffff,
+    belly: 0xffe4c4,
     muzzle: 0xcccccc,
     paws: 0xaaaaaa,
     tail: 0xffffff,
@@ -92,7 +94,7 @@ async function start(): Promise<void> {
     c.addChild(body);
 
     const belly = new PIXI.Graphics();
-    belly.beginFill(shadeColor(colors.body, 0.2));
+    belly.beginFill(colors.belly);
     belly.drawEllipse(0, 55, 35, 40);
     belly.endFill();
     c.addChild(belly);
@@ -171,11 +173,15 @@ async function start(): Promise<void> {
     pawRightPads.endFill();
     c.addChild(pawRightPads);
 
-    // Tail
+    // Tail drawn behind the body, lying on the ground with a curl
     const tail = new PIXI.Graphics();
     tail.beginFill(colors.tail);
-    tail.drawEllipse(55, 70, 25, 10);
+    // horizontal base of the tail
+    tail.drawEllipse(50, 108, 40, 12);
+    // curled end pointing upward
+    tail.drawEllipse(85, 90, 12, 20);
     tail.endFill();
+    tail.zIndex = -1;
     c.addChild(tail);
 
     // Head
@@ -304,6 +310,10 @@ async function start(): Promise<void> {
 
   function applyPartColor(part: keyof CatColors, color: number): void {
     (currentColors as any)[part] = color;
+
+    if (currentColors.belly === currentColors.body) {
+      currentColors.belly = shadeColor(currentColors.body, 0.2);
+    }
 
     if (currentCat) {
       avatarContainer.removeChild(currentCat);
