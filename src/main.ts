@@ -7,7 +7,9 @@ type CatColors = {
   muzzle: number;
   paws: number;
   tail: number;
+  tailTip: number;
   eyes: number;
+  nose: number;
 };
 
 function shadeColor(color: number, percent: number): number {
@@ -74,7 +76,9 @@ async function start(): Promise<void> {
     muzzle: 0xcccccc,
     paws: 0xaaaaaa,
     tail: 0xffffff,
+    tailTip: 0xffffff,
     eyes: 0x00ff00,
+    nose: 0x000000,
   };
 
   let currentColors: CatColors = { ...defaultColors };
@@ -132,26 +136,26 @@ async function start(): Promise<void> {
     // Front legs
     const legLeft = new PIXI.Graphics();
     legLeft.beginFill(colors.body);
-    legLeft.drawRect(-25, 70, 10, 35);
+    legLeft.drawRect(-27, 70, 14, 70);
     legLeft.endFill();
     c.addChild(legLeft);
 
     const legRight = new PIXI.Graphics();
     legRight.beginFill(colors.body);
-    legRight.drawRect(15, 70, 10, 35);
+    legRight.drawRect(13, 70, 14, 70);
     legRight.endFill();
     c.addChild(legRight);
 
     // Front paws
     const pawLeft = new PIXI.Graphics();
     pawLeft.beginFill(colors.paws);
-    pawLeft.drawEllipse(-20, 105, 15, 8);
+    pawLeft.drawEllipse(-20, 140, 15, 8);
     pawLeft.endFill();
     c.addChild(pawLeft);
 
     const pawRight = new PIXI.Graphics();
     pawRight.beginFill(colors.paws);
-    pawRight.drawEllipse(20, 105, 15, 8);
+    pawRight.drawEllipse(20, 140, 15, 8);
     pawRight.endFill();
     c.addChild(pawRight);
 
@@ -159,30 +163,34 @@ async function start(): Promise<void> {
     const pawPadColor = 0xeeeeee;
     const pawLeftPads = new PIXI.Graphics();
     pawLeftPads.beginFill(pawPadColor);
-    pawLeftPads.drawCircle(-25, 105, 3);
-    pawLeftPads.drawCircle(-20, 103, 3);
-    pawLeftPads.drawCircle(-15, 105, 3);
+    pawLeftPads.drawCircle(-25, 140, 3);
+    pawLeftPads.drawCircle(-20, 138, 3);
+    pawLeftPads.drawCircle(-15, 140, 3);
     pawLeftPads.endFill();
     c.addChild(pawLeftPads);
 
     const pawRightPads = new PIXI.Graphics();
     pawRightPads.beginFill(pawPadColor);
-    pawRightPads.drawCircle(15, 105, 3);
-    pawRightPads.drawCircle(20, 103, 3);
-    pawRightPads.drawCircle(25, 105, 3);
+    pawRightPads.drawCircle(15, 140, 3);
+    pawRightPads.drawCircle(20, 138, 3);
+    pawRightPads.drawCircle(25, 140, 3);
     pawRightPads.endFill();
     c.addChild(pawRightPads);
 
     // Tail drawn behind the body, lying on the ground with a curl
-    const tail = new PIXI.Graphics();
-    tail.beginFill(colors.tail);
-    // horizontal base of the tail
-    tail.drawEllipse(50, 108, 40, 12);
-    // curled end pointing upward
-    tail.drawEllipse(85, 90, 12, 20);
-    tail.endFill();
-    tail.zIndex = -1;
-    c.addChild(tail);
+    const tailBase = new PIXI.Graphics();
+    tailBase.beginFill(colors.tail);
+    tailBase.drawEllipse(50, 108, 40, 12);
+    tailBase.endFill();
+    tailBase.zIndex = -1;
+    c.addChild(tailBase);
+
+    const tailTip = new PIXI.Graphics();
+    tailTip.beginFill(colors.tailTip);
+    tailTip.drawEllipse(85, 90, 12, 20);
+    tailTip.endFill();
+    tailTip.zIndex = -1;
+    c.addChild(tailTip);
 
     // Head
     const head = new PIXI.Container();
@@ -268,7 +276,7 @@ async function start(): Promise<void> {
 
     // Nose
     const nose = new PIXI.Graphics();
-    nose.beginFill(0x000000);
+    nose.beginFill(colors.nose);
     nose.drawCircle(0, 5, 3);
     nose.endFill();
     head.addChild(nose);
