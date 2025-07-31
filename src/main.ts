@@ -1,16 +1,20 @@
 import * as PIXI from 'pixi.js';
 
+type TailColor = number | 'orangeStripes' | 'greyStripes';
+
 type CatColors = {
   ears: number;
   body: number;
   belly: number;
   muzzle: number;
   paws: number;
-  tail: number;
+  tail: TailColor;
   tailTip: number;
   eyes: number;
   nose: number | 'halfBlackGrey';
 };
+
+type Accessory = 'none' | 'topHat' | 'necklace';
 
 function shadeColor(color: number, percent: number): number {
   const r = (color >> 16) & 0xff;
@@ -92,10 +96,26 @@ async function start(): Promise<void> {
     }
   }
 
+  let currentAccessory: Accessory = 'none';
+  const savedAccessory = localStorage.getItem('catAccessory');
+  if (savedAccessory === 'topHat' || savedAccessory === 'necklace' || savedAccessory === 'none') {
+    currentAccessory = savedAccessory as Accessory;
+  }
+
   // Container for the avatar model
   const avatarContainer = new PIXI.Container();
 
-  function createCat(colors: CatColors): PIXI.Container {
+  function redrawCat(): void {
+    if (currentCat) {
+      avatarContainer.removeChild(currentCat);
+      currentCat.destroy();
+    }
+    currentCat = createCat(currentColors, currentAccessory);
+    avatarContainer.addChild(currentCat);
+    positionAvatar();
+  }
+
+  function createCat(colors: CatColors, accessory: Accessory): PIXI.Container {
     const c = new PIXI.Container();
     c.sortableChildren = true;
 
@@ -188,11 +208,31 @@ async function start(): Promise<void> {
 
     // Tail drawn behind the body, lying on the ground with a curl
     const tailBase = new PIXI.Graphics();
-    tailBase.beginFill(colors.tail);
-    tailBase.drawRoundedRect(40, 96, 50, 8, 4);
+    let tailColor: number = 0xffffff;
+    if (typeof colors.tail === 'number') {
+      tailColor = colors.tail;
+    } else if (colors.tail === 'orangeStripes') {
+      tailColor = 0xff9900;
+    } else if (colors.tail === 'greyStripes') {
+      tailColor = 0xcccccc;
+    }
+    tailBase.beginFill(tailColor);
+    tailBase.drawRoundedRect(30, 96, 60, 8, 4);
     tailBase.endFill();
     tailBase.zIndex = -1;
     c.addChild(tailBase);
+
+    if (colors.tail === 'orangeStripes' || colors.tail === 'greyStripes') {
+      const stripeColor = colors.tail === 'orangeStripes' ? 0x000000 : 0x555555;
+      const stripe = new PIXI.Graphics();
+      stripe.beginFill(stripeColor);
+      for (let i = 0; i < 60; i += 12) {
+        stripe.drawRect(30 + i, 96, 6, 8);
+      }
+      stripe.endFill();
+      stripe.zIndex = -1;
+      c.addChild(stripe);
+    }
 
     const tailTip = new PIXI.Graphics();
     tailTip.beginFill(colors.tailTip);
@@ -335,10 +375,30 @@ async function start(): Promise<void> {
     whiskers.zIndex = 11;
     head.addChild(whiskers);
 
+    if (accessory === 'topHat') {
+      const hat = new PIXI.Graphics();
+      hat.beginFill(0x000000);
+      hat.drawRect(-20, -85, 40, 30);
+      hat.drawRect(-30, -55, 60, 10);
+      hat.endFill();
+      hat.zIndex = 12;
+      head.addChild(hat);
+    } else if (accessory === 'necklace') {
+      const necklace = new PIXI.Graphics();
+      necklace.setStrokeStyle({ width: 4, color: 0xffd700 });
+      necklace.drawEllipse(0, 50, 28, 10);
+      necklace.stroke();
+      necklace.zIndex = 12;
+      c.addChild(necklace);
+    }
+
     return c;
   }
 
-  function applyPartColor(part: keyof CatColors, color: number | 'halfBlackGrey'): void {
+  function applyPartColor(
+    part: keyof CatColors,
+    color: number | 'halfBlackGrey' | 'orangeStripes' | 'greyStripes'
+  ): void {
     (currentColors as any)[part] = color;
 
     localStorage.setItem('catColors', JSON.stringify(currentColors));
@@ -348,11 +408,7 @@ async function start(): Promise<void> {
     }
 
     if (currentCat) {
-      avatarContainer.removeChild(currentCat);
-      currentCat.destroy();
-      currentCat = createCat(currentColors);
-      avatarContainer.addChild(currentCat);
-      positionAvatar();
+      redrawCat();
     }
   }
 
@@ -364,7 +420,7 @@ async function start(): Promise<void> {
     colorButtonsDiv.style.display = 'flex';
 
     if (!currentCat) {
-      currentCat = createCat(currentColors);
+      currentCat = createCat(currentColors, currentAccessory);
       avatarContainer.addChild(currentCat);
       app.stage.addChild(avatarContainer);
     }
@@ -398,14 +454,36 @@ async function start(): Promise<void> {
       const part = btn.dataset.part as keyof CatColors | undefined;
       const special = btn.dataset.special;
       const colorStr = btn.dataset.color;
-      let color: number | 'halfBlackGrey' | null = null;
+      let color: number | 'halfBlackGrey' | 'orangeStripes' | 'greyStripes' | null = null;
       if (special === 'halfBlackGrey') {
         color = 'halfBlackGrey';
+      } else if (special === 'orangeStripes') {
+        color = 'orangeStripes';
+      } else if (special === 'greyStripes') {
+        color = 'greyStripes';
       } else if (colorStr) {
         color = parseInt(colorStr.replace('#', ''), 16);
       }
       if (part && color !== null) {
         applyPartColor(part, color);
+      }
+    });
+  });
+
+  const accessoryRadios = Array.from(
+    document.querySelectorAll<HTMLInputElement>('input[name="accessory"]')
+  );
+  accessoryRadios.forEach((r) => {
+    if (r.value === currentAccessory) {
+      r.checked = true;
+    }
+    r.addEventListener('change', () => {
+      if (r.checked) {
+        currentAccessory = r.value as Accessory;
+        localStorage.setItem('catAccessory', currentAccessory);
+        if (currentCat) {
+          redrawCat();
+        }
       }
     });
   });
