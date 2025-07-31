@@ -391,7 +391,7 @@ async function start(): Promise<void> {
       for (let i = 0; i <= beads; i++) {
         const t = (i / beads) * 2 - 1;
         const x = t * 28;
-        const y = baseY + a * (Math.cosh(x / a) - 1);
+        const y = baseY - a * (Math.cosh(x / a) - 1);
         const bead = new PIXI.Graphics();
         bead.beginFill(0xffd700);
         bead.drawCircle(x, y, 3);
