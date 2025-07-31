@@ -1,0 +1,3 @@
+- Split cat body into two parts so the chest is narrower and the hips wider.
+- Front legs tilt inward so the paws are closer together.
+- Front paws rotate slightly outward from the legs.

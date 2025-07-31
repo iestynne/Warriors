@@ -119,16 +119,23 @@ async function start(): Promise<void> {
     const c = new PIXI.Container();
     c.sortableChildren = true;
 
-    // Body (ellipse to fake a 3D look)
-    const body = new PIXI.Graphics();
-    body.beginFill(colors.body);
-    body.drawEllipse(0, 40, 45, 65);
-    body.endFill();
-    c.addChild(body);
+    // Body split in two pieces so the hips appear wider than the chest
+    const chest = new PIXI.Graphics();
+    chest.beginFill(colors.body);
+    chest.drawEllipse(0, 25, 30, 40); // narrower upper torso
+    chest.endFill();
+    c.addChild(chest);
 
+    const hips = new PIXI.Graphics();
+    hips.beginFill(colors.body);
+    hips.drawEllipse(0, 65, 45, 50); // wider lower body
+    hips.endFill();
+    c.addChild(hips);
+
+    // Belly sits over both body segments
     const belly = new PIXI.Graphics();
     belly.beginFill(colors.belly);
-    belly.drawEllipse(0, 55, 35, 40);
+    belly.drawEllipse(0, 60, 35, 45);
     belly.endFill();
     c.addChild(belly);
 
@@ -165,46 +172,61 @@ async function start(): Promise<void> {
     // Front legs
     const legLeft = new PIXI.Graphics();
     legLeft.beginFill(colors.body);
-    legLeft.drawRect(-27, 55, 14, 60);
+    // Tilt the leg so the paw is closer to the center
+    legLeft.drawPolygon([
+      -28, 55, // top outer
+      -24, 115, // bottom outer angled inward
+      -16, 115, // bottom inner angled inward
+      -12, 55, // top inner
+    ]);
     legLeft.endFill();
     c.addChild(legLeft);
 
     const legRight = new PIXI.Graphics();
     legRight.beginFill(colors.body);
-    legRight.drawRect(13, 55, 14, 60);
+    legRight.drawPolygon([
+      12, 55, // top inner
+      16, 115, // bottom inner angled inward
+      24, 115, // bottom outer angled inward
+      28, 55, // top outer
+    ]);
     legRight.endFill();
     c.addChild(legRight);
 
-    // Front paws
+    // Front paws are rotated outward slightly from the legs
     const pawLeft = new PIXI.Graphics();
     pawLeft.beginFill(colors.paws);
-    pawLeft.drawEllipse(-20, 120, 15, 8);
+    pawLeft.drawEllipse(0, 0, 15, 8);
     pawLeft.endFill();
+    pawLeft.position.set(-20, 120);
+    pawLeft.rotation = -0.25;
     c.addChild(pawLeft);
 
     const pawRight = new PIXI.Graphics();
     pawRight.beginFill(colors.paws);
-    pawRight.drawEllipse(20, 120, 15, 8);
+    pawRight.drawEllipse(0, 0, 15, 8);
     pawRight.endFill();
+    pawRight.position.set(20, 120);
+    pawRight.rotation = 0.25;
     c.addChild(pawRight);
 
     // Toe pads for front paws
     const pawPadColor = 0xeeeeee;
     const pawLeftPads = new PIXI.Graphics();
     pawLeftPads.beginFill(pawPadColor);
-    pawLeftPads.drawCircle(-25, 120, 3);
-    pawLeftPads.drawCircle(-20, 118, 3);
-    pawLeftPads.drawCircle(-15, 120, 3);
+    pawLeftPads.drawCircle(-5, 0, 3);
+    pawLeftPads.drawCircle(0, -2, 3);
+    pawLeftPads.drawCircle(5, 0, 3);
     pawLeftPads.endFill();
-    c.addChild(pawLeftPads);
+    pawLeft.addChild(pawLeftPads);
 
     const pawRightPads = new PIXI.Graphics();
     pawRightPads.beginFill(pawPadColor);
-    pawRightPads.drawCircle(15, 120, 3);
-    pawRightPads.drawCircle(20, 118, 3);
-    pawRightPads.drawCircle(25, 120, 3);
+    pawRightPads.drawCircle(-5, 0, 3);
+    pawRightPads.drawCircle(0, -2, 3);
+    pawRightPads.drawCircle(5, 0, 3);
     pawRightPads.endFill();
-    c.addChild(pawRightPads);
+    pawRight.addChild(pawRightPads);
 
     // Tail drawn behind the body, lying on the ground with a curl
     const tailBase = new PIXI.Graphics();
