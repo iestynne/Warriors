@@ -378,16 +378,26 @@ async function start(): Promise<void> {
     if (accessory === 'topHat') {
       const hat = new PIXI.Graphics();
       hat.beginFill(0x000000);
-      hat.drawRect(-20, -85, 40, 30);
-      hat.drawRect(-30, -55, 60, 10);
+      hat.drawRect(-20, -65, 40, 30);
+      hat.drawRect(-30, -35, 60, 10);
       hat.endFill();
       hat.zIndex = 12;
       head.addChild(hat);
     } else if (accessory === 'necklace') {
-      const necklace = new PIXI.Graphics();
-      necklace.setStrokeStyle({ width: 4, color: 0xffd700 });
-      necklace.drawEllipse(0, 50, 28, 10);
-      necklace.stroke();
+      const necklace = new PIXI.Container();
+      const beads = 12;
+      const a = 20;
+      const baseY = 25;
+      for (let i = 0; i <= beads; i++) {
+        const t = (i / beads) * 2 - 1;
+        const x = t * 28;
+        const y = baseY + a * (Math.cosh(x / a) - 1);
+        const bead = new PIXI.Graphics();
+        bead.beginFill(0xffd700);
+        bead.drawCircle(x, y, 3);
+        bead.endFill();
+        necklace.addChild(bead);
+      }
       necklace.zIndex = 12;
       c.addChild(necklace);
     }
