@@ -12,3 +12,4 @@
 - Add a reddish eye color option styled for albino cats.
 - Add black as a selectable paws color.
 - Cat intermittently animates: ear twitch, whisker twitch, tail flick, blinking and looking eyes, and a paw whack with a "WHACK!" effect.
+- Paw whack animation lasts longer with a three-stage motion, the paw enlarges as it swings, and the WHACK text appears over a yellow starburst.

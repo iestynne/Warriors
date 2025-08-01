@@ -556,7 +556,30 @@ async function start(): Promise<void> {
       timeouts.push(t);
     }
 
-    // Paw whack animation: the right paw raises and a "whack" text appears.
+    // Paw whack animation broken into three stages so the motion reads better.
+    // The paw enlarges as it swings forward and a starburst highlights the text.
+
+    // Text announcing the whack. Placed inside a container with a starburst so
+    // both can be shown/hidden together.
+    const whackEffect = new PIXI.Container();
+    whackEffect.visible = false;
+    c.addChild(whackEffect);
+
+    const starburst = new PIXI.Graphics();
+    starburst.beginFill(0xffff66);
+    const starPoints: number[] = [];
+    const rays = 8;
+    const outerR = 20;
+    const innerR = 8;
+    for (let i = 0; i < rays * 2; i++) {
+      const angle = (Math.PI * i) / rays;
+      const r = i % 2 === 0 ? outerR : innerR;
+      starPoints.push(Math.cos(angle) * r, Math.sin(angle) * r);
+    }
+    starburst.drawPolygon(starPoints);
+    starburst.endFill();
+    whackEffect.addChild(starburst);
+
     const pawWhackText = new PIXI.Text('WHACK!', {
       fontFamily: 'Arial',
       fontSize: 16,
@@ -564,21 +587,31 @@ async function start(): Promise<void> {
       fontWeight: 'bold',
     });
     pawWhackText.anchor.set(0.5);
-    pawWhackText.visible = false;
-    c.addChild(pawWhackText);
+    whackEffect.addChild(pawWhackText);
+
     const pawRightBaseY = pawRight.y;
+    const pawRightBaseScale = pawRight.scale.x;
     function scheduleWhack(): void {
       const delay = 5000 + Math.random() * 7000;
       const t = setTimeout(() => {
-        pawRight.y = pawRightBaseY - 40;
-        pawWhackText.position.set(pawRight.x + 30, pawRight.y - 20);
-        pawWhackText.visible = true;
-        const r = setTimeout(() => {
-          pawRight.y = pawRightBaseY;
-          pawWhackText.visible = false;
-          scheduleWhack();
-        }, 300);
-        timeouts.push(r);
+        // Stage 1: lift the paw slightly before the strike
+        pawRight.y = pawRightBaseY - 25;
+        const stage2 = setTimeout(() => {
+          // Stage 2: paw comes forward and enlarges for emphasis
+          pawRight.y = pawRightBaseY - 40;
+          pawRight.scale.set(pawRightBaseScale * 1.3);
+          whackEffect.position.set(pawRight.x + 30, pawRight.y - 20);
+          whackEffect.visible = true;
+          const stage3 = setTimeout(() => {
+            // Stage 3: return to normal
+            pawRight.scale.set(pawRightBaseScale);
+            pawRight.y = pawRightBaseY;
+            whackEffect.visible = false;
+            scheduleWhack();
+          }, 500); // hold the whack on screen longer
+          timeouts.push(stage3);
+        }, 200);
+        timeouts.push(stage2);
       }, delay);
       timeouts.push(t);
     }
