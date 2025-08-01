@@ -9,3 +9,5 @@
 - Top hat is taller with sides tapering toward the bottom and a thinner, wider brim.
 - Front legs keep a constant width while tilting so their bottoms are closer than their tops.
 - The meow bubble stays mostly to the sides of the head and its connector line attaches to the mouth.
+- Add a reddish eye color option styled for albino cats.
+- Add black as a selectable paws color.
