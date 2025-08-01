@@ -11,3 +11,4 @@
 - The meow bubble stays mostly to the sides of the head and its connector line attaches to the mouth.
 - Add a reddish eye color option styled for albino cats.
 - Add black as a selectable paws color.
+- Cat intermittently animates: ear twitch, whisker twitch, tail flick, blinking and looking eyes, and a paw whack with a "WHACK!" effect.
