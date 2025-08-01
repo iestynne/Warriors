@@ -478,8 +478,11 @@ async function start(): Promise<void> {
     function scheduleMeow(): void {
       const delay = 3000 + Math.random() * 7000;
       const show = setTimeout(() => {
-        // Randomize bubble position around the head each time it appears
-        const angle = Math.random() * Math.PI * 2;
+        // Randomize bubble position mostly to the left or right of the head
+        // so the bubble doesn't appear above or below the cat.
+        const side = Math.random() < 0.5 ? 0 : Math.PI; // choose right or left
+        const angleOffset = (Math.random() - 0.5) * (Math.PI / 2); // up/down tilt
+        const angle = side + angleOffset;
         const radius = 70;
         bubble.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius);
 
@@ -487,7 +490,9 @@ async function start(): Promise<void> {
         bubbleConnector.visible = true;
         bubbleConnector.clear();
         bubbleConnector.setStrokeStyle({ width: 2, color: 0x000000 });
-        bubbleConnector.moveTo(0, 0);
+        // Attach the connector line to the mouth instead of the nose so
+        // it's clear that the "meow" comes from the cat's mouth.
+        bubbleConnector.moveTo(0, 14);
         bubbleConnector.lineTo(bubble.position.x, bubble.position.y);
         bubbleConnector.stroke();
 
