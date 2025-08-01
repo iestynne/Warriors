@@ -71,6 +71,9 @@ async function start(): Promise<void> {
   ) as HTMLButtonElement;
   const doneBtn = document.getElementById('done-btn') as HTMLButtonElement;
   const colorButtonsDiv = document.getElementById('color-buttons') as HTMLDivElement;
+  const saveRow = document.getElementById('save-row') as HTMLDivElement;
+  const catNameInput = document.getElementById('cat-name-input') as HTMLInputElement;
+  const saveCatBtn = document.getElementById('save-cat-btn') as HTMLButtonElement;
   const colorButtons = Array.from(
     document.querySelectorAll<HTMLButtonElement>('.color-btn')
   );
@@ -122,8 +125,28 @@ async function start(): Promise<void> {
     currentAccessory = savedAccessory as Accessory;
   }
 
+  type SavedCat = { name: string; colors: CatColors; accessory: Accessory };
+  let savedCats: SavedCat[] = [];
+  const savedCatsData = localStorage.getItem('savedCats');
+  if (savedCatsData) {
+    try {
+      savedCats = JSON.parse(savedCatsData) as SavedCat[];
+    } catch {
+      /* ignore malformed saved data */
+    }
+  }
+  let currentCatIndex = -1;
+  if (savedCats.length > 0) {
+    currentCatIndex = 0;
+    currentColors = { ...currentColors, ...savedCats[0].colors };
+    currentAccessory = savedCats[0].accessory;
+  }
+
   // Container for the avatar model
   const avatarContainer = new PIXI.Container();
+  const savedCatsContainer = new PIXI.Container();
+  savedCatsContainer.visible = false;
+  app.stage.addChild(savedCatsContainer);
 
   function redrawCat(): void {
     if (currentCat) {
@@ -704,7 +727,14 @@ async function start(): Promise<void> {
     buttonBar.style.display = 'none';
     doneBtn.style.display = 'block';
     colorButtonsDiv.style.display = 'flex';
+    saveRow.style.display = 'block';
+    savedCatsContainer.visible = true;
     updateColorButtonHighlights();
+    if (currentCatIndex >= 0 && savedCats[currentCatIndex]) {
+      catNameInput.value = savedCats[currentCatIndex].name;
+    } else {
+      catNameInput.value = '';
+    }
 
     if (!currentCat) {
       currentCat = createCat(currentColors, currentAccessory);
@@ -713,12 +743,15 @@ async function start(): Promise<void> {
     }
 
     positionAvatar();
+    updateSavedCatsDisplay();
   }
 
   function hideCharacterCreator(): void {
     buttonBar.style.display = 'flex';
     doneBtn.style.display = 'none';
     colorButtonsDiv.style.display = 'none';
+    saveRow.style.display = 'none';
+    savedCatsContainer.visible = false;
 
     if (currentCat) {
       avatarContainer.removeChild(currentCat);
@@ -733,8 +766,70 @@ async function start(): Promise<void> {
     currentCat.position.set(app.screen.width / 2, app.screen.height / 2);
   }
 
+  function positionSavedCats(): void {
+    let totalHeight = savedCatsContainer.height;
+    savedCatsContainer.position.set(
+      app.screen.width / 2 - 220,
+      app.screen.height / 2 - totalHeight / 2
+    );
+  }
+
+  function loadSavedCat(index: number): void {
+    const cat = savedCats[index];
+    if (!cat) return;
+    currentCatIndex = index;
+    currentColors = { ...cat.colors };
+    currentAccessory = cat.accessory;
+    catNameInput.value = cat.name;
+    redrawCat();
+    updateColorButtonHighlights();
+    accessoryRadios.forEach((r) => {
+      r.checked = r.value === currentAccessory;
+    });
+  }
+
+  function updateSavedCatsDisplay(): void {
+    savedCatsContainer.removeChildren();
+    savedCats.forEach((cat, i) => {
+      const entry = new PIXI.Container();
+      entry.eventMode = 'static';
+      entry.cursor = 'pointer';
+      entry.y = i * 70;
+      entry.on('pointertap', () => loadSavedCat(i));
+
+      const mini = createCat(cat.colors, cat.accessory);
+      mini.scale.set(0.4);
+      mini.position.set(30, 50);
+      entry.addChild(mini);
+
+      const txt = new PIXI.Text(cat.name, {
+        fontFamily: 'Arial',
+        fontSize: 14,
+        fill: 0xffffff,
+      });
+      txt.position.set(60, 20);
+      entry.addChild(txt);
+      savedCatsContainer.addChild(entry);
+    });
+    positionSavedCats();
+  }
+
+  function saveCurrentCat(): void {
+    const name = catNameInput.value.trim() || 'Unnamed';
+    const data = { name, colors: { ...currentColors }, accessory: currentAccessory };
+    if (currentCatIndex >= 0) {
+      savedCats[currentCatIndex] = data;
+    } else {
+      savedCats.push(data);
+      currentCatIndex = savedCats.length - 1;
+    }
+    localStorage.setItem('savedCats', JSON.stringify(savedCats));
+    updateSavedCatsDisplay();
+  }
+
   createAvatarBtn.addEventListener('click', showCharacterCreator);
   doneBtn.addEventListener('click', hideCharacterCreator);
+  saveCatBtn.addEventListener('click', saveCurrentCat);
 
   colorButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -778,6 +873,7 @@ async function start(): Promise<void> {
   });
 
   app.renderer.on('resize', positionAvatar);
+  app.renderer.on('resize', positionSavedCats);
 
   // Helper to create a pine tree graphic. The "x" argument represents the
   // horizontal center of the tree and "y" is the bottom of the tree. The tree
