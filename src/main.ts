@@ -2,6 +2,8 @@ import * as PIXI from 'pixi.js';
 
 type TailColor = number | 'orangeStripes' | 'greyStripes';
 
+type EyeColor = number | 'greenBlueSplit';
+
 type CatColors = {
   ears: number;
   body: number;
@@ -10,7 +12,7 @@ type CatColors = {
   paws: number;
   tail: TailColor;
   tailTip: number;
-  eyes: number;
+  eyes: EyeColor;
   nose: number | 'halfBlackGrey';
 };
 
@@ -313,14 +315,24 @@ async function start(): Promise<void> {
     rightEyeShade.endFill();
     head.addChild(rightEyeShade);
 
+    // Eye colors may be a single color or split green/blue
+    let leftEyeColor = 0x00ff00;
+    let rightEyeColor = 0x00ff00;
+    if (typeof colors.eyes === 'number') {
+      leftEyeColor = rightEyeColor = colors.eyes;
+    } else if (colors.eyes === 'greenBlueSplit') {
+      leftEyeColor = 0x00ff00;
+      rightEyeColor = 0x66ccff;
+    }
+
     const leftEye = new PIXI.Graphics();
-    leftEye.beginFill(colors.eyes);
+    leftEye.beginFill(leftEyeColor);
     leftEye.drawCircle(-12, -5, 6);
     leftEye.endFill();
     head.addChild(leftEye);
 
     const rightEye = new PIXI.Graphics();
-    rightEye.beginFill(colors.eyes);
+    rightEye.beginFill(rightEyeColor);
     rightEye.drawCircle(12, -5, 6);
     rightEye.endFill();
     head.addChild(rightEye);
@@ -424,12 +436,56 @@ async function start(): Promise<void> {
       c.addChild(necklace);
     }
 
+    // Word bubble that occasionally displays "meow!"
+    const bubble = new PIXI.Container();
+    bubble.visible = false;
+    bubble.zIndex = 20;
+    bubble.position.set(0, -80);
+
+    const bubbleShape = new PIXI.Graphics();
+    bubbleShape.setStrokeStyle({ width: 2, color: 0x000000 });
+    bubbleShape.beginFill(0xffffff);
+    bubbleShape.drawRoundedRect(-25, 0, 50, 20, 10);
+    bubbleShape.endFill();
+    bubbleShape.stroke();
+    bubble.addChild(bubbleShape);
+
+    const bubbleText = new PIXI.Text('meow!', {
+      fontFamily: 'Arial',
+      fontSize: 12,
+      fill: 0x000000,
+    });
+    bubbleText.anchor.set(0.5);
+    bubbleText.position.set(0, 10);
+    bubble.addChild(bubbleText);
+
+    head.addChild(bubble);
+
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    function scheduleMeow(): void {
+      const delay = 3000 + Math.random() * 7000;
+      const show = setTimeout(() => {
+        bubble.visible = true;
+        const hide = setTimeout(() => {
+          bubble.visible = false;
+          scheduleMeow();
+        }, 1000);
+        timeouts.push(hide);
+      }, delay);
+      timeouts.push(show);
+    }
+    scheduleMeow();
+
+    c.on('destroyed', () => {
+      for (const t of timeouts) clearTimeout(t);
+    });
+
     return c;
   }
 
   function applyPartColor(
     part: keyof CatColors,
-    color: number | 'halfBlackGrey' | 'orangeStripes' | 'greyStripes'
+    color: number | 'halfBlackGrey' | 'orangeStripes' | 'greyStripes' | 'greenBlueSplit'
   ): void {
     (currentColors as any)[part] = color;
 
@@ -486,13 +542,15 @@ async function start(): Promise<void> {
       const part = btn.dataset.part as keyof CatColors | undefined;
       const special = btn.dataset.special;
       const colorStr = btn.dataset.color;
-      let color: number | 'halfBlackGrey' | 'orangeStripes' | 'greyStripes' | null = null;
+      let color: number | 'halfBlackGrey' | 'orangeStripes' | 'greyStripes' | 'greenBlueSplit' | null = null;
       if (special === 'halfBlackGrey') {
         color = 'halfBlackGrey';
       } else if (special === 'orangeStripes') {
         color = 'orangeStripes';
       } else if (special === 'greyStripes') {
         color = 'greyStripes';
+      } else if (special === 'greenBlueSplit') {
+        color = 'greenBlueSplit';
       } else if (colorStr) {
         color = parseInt(colorStr.replace('#', ''), 16);
       }

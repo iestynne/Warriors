@@ -1,3 +1,6 @@
 - Split cat body into two parts so the chest is narrower and the hips wider.
 - Front legs tilt inward so the paws are closer together.
 - Front paws rotate slightly outward from the legs.
+- Add grey as a color option for the ears.
+- Add a split green/blue eye color option (left eye green, right eye blue).
+- Cat occasionally utters a brief 'meow!' in a word bubble.
