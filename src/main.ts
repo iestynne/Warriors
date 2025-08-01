@@ -437,10 +437,16 @@ async function start(): Promise<void> {
     }
 
     // Word bubble that occasionally displays "meow!"
+    // Word bubble and connector that display "meow!" from random spots
     const bubble = new PIXI.Container();
     bubble.visible = false;
     bubble.zIndex = 20;
-    bubble.position.set(0, -80);
+
+    // Line from the head to the word bubble so it's clear who's speaking
+    const bubbleConnector = new PIXI.Graphics();
+    bubbleConnector.visible = false;
+    bubbleConnector.zIndex = 19; // slightly behind the bubble
+    head.addChild(bubbleConnector);
 
     const bubbleShape = new PIXI.Graphics();
     bubbleShape.setStrokeStyle({ width: 2, color: 0x000000 });
@@ -465,9 +471,23 @@ async function start(): Promise<void> {
     function scheduleMeow(): void {
       const delay = 3000 + Math.random() * 7000;
       const show = setTimeout(() => {
+        // Randomize bubble position around the head each time it appears
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 70;
+        bubble.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius);
+
+        // Draw the connector line from the head to the bubble
+        bubbleConnector.visible = true;
+        bubbleConnector.clear();
+        bubbleConnector.setStrokeStyle({ width: 2, color: 0x000000 });
+        bubbleConnector.moveTo(0, 0);
+        bubbleConnector.lineTo(bubble.position.x, bubble.position.y);
+        bubbleConnector.stroke();
+
         bubble.visible = true;
         const hide = setTimeout(() => {
           bubble.visible = false;
+          bubbleConnector.visible = false;
           scheduleMeow();
         }, 1000);
         timeouts.push(hide);
