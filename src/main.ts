@@ -69,7 +69,7 @@ async function start(): Promise<void> {
   const createAvatarBtn = document.getElementById(
     'create-avatar-btn'
   ) as HTMLButtonElement;
-  const doneBtn = document.getElementById('done-btn') as HTMLButtonElement;
+  const backBtn = document.getElementById('back-btn') as HTMLButtonElement;
   const colorButtonsDiv = document.getElementById('color-buttons') as HTMLDivElement;
   const saveRow = document.getElementById('save-row') as HTMLDivElement;
   const catNameInput = document.getElementById('cat-name-input') as HTMLInputElement;
@@ -725,7 +725,7 @@ async function start(): Promise<void> {
 
   function showCharacterCreator(): void {
     buttonBar.style.display = 'none';
-    doneBtn.style.display = 'block';
+    backBtn.style.display = 'block';
     colorButtonsDiv.style.display = 'flex';
     saveRow.style.display = 'block';
     savedCatsContainer.visible = true;
@@ -748,7 +748,7 @@ async function start(): Promise<void> {
 
   function hideCharacterCreator(): void {
     buttonBar.style.display = 'flex';
-    doneBtn.style.display = 'none';
+    backBtn.style.display = 'none';
     colorButtonsDiv.style.display = 'none';
     saveRow.style.display = 'none';
     savedCatsContainer.visible = false;
@@ -769,7 +769,7 @@ async function start(): Promise<void> {
   function positionSavedCats(): void {
     let totalHeight = savedCatsContainer.height;
     savedCatsContainer.position.set(
-      app.screen.width / 2 - 220,
+      app.screen.width / 2 - 260,
       app.screen.height / 2 - totalHeight / 2
     );
   }
@@ -817,8 +817,10 @@ async function start(): Promise<void> {
   function saveCurrentCat(): void {
     const name = catNameInput.value.trim() || 'Unnamed';
     const data = { name, colors: { ...currentColors }, accessory: currentAccessory };
-    if (currentCatIndex >= 0) {
-      savedCats[currentCatIndex] = data;
+    const existingIndex = savedCats.findIndex((c) => c.name === name);
+    if (existingIndex >= 0) {
+      savedCats[existingIndex] = data;
+      currentCatIndex = existingIndex;
     } else {
       savedCats.push(data);
       currentCatIndex = savedCats.length - 1;
@@ -828,7 +830,7 @@ async function start(): Promise<void> {
   }
 
   createAvatarBtn.addEventListener('click', showCharacterCreator);
-  doneBtn.addEventListener('click', hideCharacterCreator);
+  backBtn.addEventListener('click', hideCharacterCreator);
   saveCatBtn.addEventListener('click', saveCurrentCat);
 
   colorButtons.forEach((btn) => {

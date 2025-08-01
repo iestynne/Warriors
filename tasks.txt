@@ -18,3 +18,6 @@
 - Users can save multiple named cats. A list of saved names with mini portraits
   appears left of the cat during editing. Clicking a name loads that cat. The
   name field under the cat with a save button updates or adds a saved entry.
+- Saving with a new name adds a new entry instead of overwriting the current cat.
+- The list of saved cats is positioned slightly further left.
+- The Done button is now labeled "Back" and sits in the upper left corner.
