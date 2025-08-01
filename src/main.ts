@@ -475,6 +475,113 @@ async function start(): Promise<void> {
     head.addChild(bubble);
 
     const timeouts: ReturnType<typeof setTimeout>[] = [];
+    // Random ear twitches add some life to the cat. Either ear may move
+    // slightly for a brief moment.
+    function scheduleEarTwitch(): void {
+      const delay = 2000 + Math.random() * 6000;
+      const t = setTimeout(() => {
+        const ear = Math.random() < 0.5 ? earLeft : earRight;
+        ear.rotation = (Math.random() - 0.5) * 0.6;
+        const r = setTimeout(() => {
+          ear.rotation = 0;
+          scheduleEarTwitch();
+        }, 150);
+        timeouts.push(r);
+      }, delay);
+      timeouts.push(t);
+    }
+
+    // Whiskers occasionally twitch by rotating them slightly.
+    function scheduleWhiskerTwitch(): void {
+      const delay = 1500 + Math.random() * 5000;
+      const t = setTimeout(() => {
+        whiskers.rotation = (Math.random() - 0.5) * 0.4;
+        const r = setTimeout(() => {
+          whiskers.rotation = 0;
+          scheduleWhiskerTwitch();
+        }, 150);
+        timeouts.push(r);
+      }, delay);
+      timeouts.push(t);
+    }
+
+    // The tip of the tail flicks upward every so often.
+    const tailTipBaseY = tailTip.y;
+    function scheduleTailFlick(): void {
+      const delay = 4000 + Math.random() * 6000;
+      const t = setTimeout(() => {
+        tailTip.y = tailTipBaseY - 12;
+        const r = setTimeout(() => {
+          tailTip.y = tailTipBaseY;
+          scheduleTailFlick();
+        }, 150);
+        timeouts.push(r);
+      }, delay);
+      timeouts.push(t);
+    }
+
+    // Eyes briefly scale to simulate a blink.
+    function scheduleBlink(): void {
+      const delay = 2500 + Math.random() * 5000;
+      const t = setTimeout(() => {
+        leftEye.scale.y = rightEye.scale.y = 0.1;
+        leftEyeShade.scale.y = rightEyeShade.scale.y = 0.1;
+        pupilLeft.scale.y = pupilRight.scale.y = 0.1;
+        const r = setTimeout(() => {
+          leftEye.scale.y = rightEye.scale.y = 1;
+          leftEyeShade.scale.y = rightEyeShade.scale.y = 1;
+          pupilLeft.scale.y = pupilRight.scale.y = 1;
+          scheduleBlink();
+        }, 120);
+        timeouts.push(r);
+      }, delay);
+      timeouts.push(t);
+    }
+
+    // Pupils move slightly to look around.
+    function scheduleEyeLook(): void {
+      const delay = 1800 + Math.random() * 4000;
+      const t = setTimeout(() => {
+        const ox = (Math.random() - 0.5) * 4;
+        const oy = (Math.random() - 0.5) * 2;
+        pupilLeft.position.set(ox, oy);
+        pupilRight.position.set(ox, oy);
+        const r = setTimeout(() => {
+          pupilLeft.position.set(0, 0);
+          pupilRight.position.set(0, 0);
+          scheduleEyeLook();
+        }, 800);
+        timeouts.push(r);
+      }, delay);
+      timeouts.push(t);
+    }
+
+    // Paw whack animation: the right paw raises and a "whack" text appears.
+    const pawWhackText = new PIXI.Text('WHACK!', {
+      fontFamily: 'Arial',
+      fontSize: 16,
+      fill: 0xff0000,
+      fontWeight: 'bold',
+    });
+    pawWhackText.anchor.set(0.5);
+    pawWhackText.visible = false;
+    c.addChild(pawWhackText);
+    const pawRightBaseY = pawRight.y;
+    function scheduleWhack(): void {
+      const delay = 5000 + Math.random() * 7000;
+      const t = setTimeout(() => {
+        pawRight.y = pawRightBaseY - 40;
+        pawWhackText.position.set(pawRight.x + 30, pawRight.y - 20);
+        pawWhackText.visible = true;
+        const r = setTimeout(() => {
+          pawRight.y = pawRightBaseY;
+          pawWhackText.visible = false;
+          scheduleWhack();
+        }, 300);
+        timeouts.push(r);
+      }, delay);
+      timeouts.push(t);
+    }
     function scheduleMeow(): void {
       const delay = 3000 + Math.random() * 7000;
       const show = setTimeout(() => {
@@ -507,6 +614,12 @@ async function start(): Promise<void> {
       timeouts.push(show);
     }
     scheduleMeow();
+    scheduleEarTwitch();
+    scheduleWhiskerTwitch();
+    scheduleTailFlick();
+    scheduleBlink();
+    scheduleEyeLook();
+    scheduleWhack();
 
     c.on('destroyed', () => {
       for (const t of timeouts) clearTimeout(t);
