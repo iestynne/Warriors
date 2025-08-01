@@ -48,6 +48,12 @@
       border: 2px solid #444;
       cursor: pointer;
     }
+
+    /* Selected color is highlighted with a thicker yellow border */
+    .color-btn.selected {
+      border-color: #ffff00;
+      border-width: 4px;
+    }
   </style>
 </head>
 <body>
@@ -89,6 +95,7 @@
       <button class="color-btn" data-part="muzzle" data-color="#ffe4c4" style="background:#ffe4c4"></button>
       <button class="color-btn" data-part="muzzle" data-color="#f5deb3" style="background:#f5deb3"></button>
       <button class="color-btn" data-part="muzzle" data-color="#ffffff" style="background:#ffffff"></button>
+      <button class="color-btn" data-part="muzzle" data-color="#000000" style="background:#000000"></button>
     </div>
     <div class="color-column">
       <div class="column-label">Paws</div>

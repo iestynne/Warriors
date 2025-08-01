@@ -75,6 +75,24 @@ async function start(): Promise<void> {
     document.querySelectorAll<HTMLButtonElement>('.color-btn')
   );
 
+  // Highlight the button representing the currently selected color for each part
+  function updateColorButtonHighlights(): void {
+    colorButtons.forEach((btn) => {
+      const part = btn.dataset.part as keyof CatColors | undefined;
+      if (!part) return;
+      const current = (currentColors as any)[part];
+      const special = btn.dataset.special;
+      const colorStr = btn.dataset.color;
+      let matches = false;
+      if (special) {
+        matches = current === special;
+      } else if (colorStr) {
+        matches = current === parseInt(colorStr.replace('#', ''), 16);
+      }
+      btn.classList.toggle('selected', matches);
+    });
+  }
+
   const defaultColors: CatColors = {
     ears: 0xffffff,
     body: 0xffffff,
@@ -676,6 +694,8 @@ async function start(): Promise<void> {
     if (currentCat) {
       redrawCat();
     }
+
+    updateColorButtonHighlights();
   }
 
   let currentCat: PIXI.Container | null = null;
@@ -684,6 +704,7 @@ async function start(): Promise<void> {
     buttonBar.style.display = 'none';
     doneBtn.style.display = 'block';
     colorButtonsDiv.style.display = 'flex';
+    updateColorButtonHighlights();
 
     if (!currentCat) {
       currentCat = createCat(currentColors, currentAccessory);
