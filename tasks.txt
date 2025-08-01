@@ -1,8 +1,10 @@
 - Split cat body into two parts so the chest is narrower and the hips wider.
 - Front legs tilt inward so the paws are closer together.
-- Front paws rotate slightly outward from the legs.
+- Front paws appear turned out with pads slightly outside the legs rather than being rotated.
 - Add grey as a color option for the ears.
 - Add a split green/blue eye color option (left eye green, right eye blue).
 - Cat occasionally utters a brief 'meow!' in a word bubble.
 - The 'meow' bubble appears in different spots around the head with a line
   connecting it to the cat.
+- Top hat is taller with sides tapering toward the bottom and a thinner, wider brim.
+- Front legs keep a constant width while tilting so their bottoms are closer than their tops.

@@ -171,14 +171,14 @@ async function start(): Promise<void> {
     rearRightPads.endFill();
     c.addChild(rearRightPads);
 
-    // Front legs
+    // Front legs tilt inward with a constant width
     const legLeft = new PIXI.Graphics();
     legLeft.beginFill(colors.body);
-    // Tilt the leg so the paw is closer to the center
+    // Shift the bottom of the leg toward the center without tapering
     legLeft.drawPolygon([
       -28, 55, // top outer
-      -24, 115, // bottom outer angled inward
-      -16, 115, // bottom inner angled inward
+      -23, 115, // bottom outer shifted right
+      -7, 115, // bottom inner shifted right
       -12, 55, // top inner
     ]);
     legLeft.endFill();
@@ -188,20 +188,19 @@ async function start(): Promise<void> {
     legRight.beginFill(colors.body);
     legRight.drawPolygon([
       12, 55, // top inner
-      16, 115, // bottom inner angled inward
-      24, 115, // bottom outer angled inward
+      7, 115, // bottom inner shifted left
+      23, 115, // bottom outer shifted left
       28, 55, // top outer
     ]);
     legRight.endFill();
     c.addChild(legRight);
 
-    // Front paws are rotated outward slightly from the legs
+    // Front paws face outward so the pads sit slightly outside the legs
     const pawLeft = new PIXI.Graphics();
     pawLeft.beginFill(colors.paws);
     pawLeft.drawEllipse(0, 0, 15, 8);
     pawLeft.endFill();
     pawLeft.position.set(-20, 120);
-    pawLeft.rotation = -0.25;
     c.addChild(pawLeft);
 
     const pawRight = new PIXI.Graphics();
@@ -209,7 +208,6 @@ async function start(): Promise<void> {
     pawRight.drawEllipse(0, 0, 15, 8);
     pawRight.endFill();
     pawRight.position.set(20, 120);
-    pawRight.rotation = 0.25;
     c.addChild(pawRight);
 
     // Toe pads for front paws
@@ -220,6 +218,7 @@ async function start(): Promise<void> {
     pawLeftPads.drawCircle(0, -2, 3);
     pawLeftPads.drawCircle(5, 0, 3);
     pawLeftPads.endFill();
+    pawLeftPads.position.x = -4; // shift pads outward for a turned-out paw
     pawLeft.addChild(pawLeftPads);
 
     const pawRightPads = new PIXI.Graphics();
@@ -228,6 +227,7 @@ async function start(): Promise<void> {
     pawRightPads.drawCircle(0, -2, 3);
     pawRightPads.drawCircle(5, 0, 3);
     pawRightPads.endFill();
+    pawRightPads.position.x = 4; // shift pads outward for a turned-out paw
     pawRight.addChild(pawRightPads);
 
     // Tail drawn behind the body, lying on the ground with a curl
@@ -412,8 +412,15 @@ async function start(): Promise<void> {
     if (accessory === 'topHat') {
       const hat = new PIXI.Graphics();
       hat.beginFill(0x000000);
-      hat.drawRect(-20, -65, 40, 30);
-      hat.drawRect(-30, -35, 60, 10);
+      // Tapered top hat that is slightly taller
+      hat.drawPolygon([
+        -18, -35, // bottom left
+        -22, -75, // top left (wider at the top)
+        22, -75, // top right
+        18, -35, // bottom right
+      ]);
+      // Thinner brim that extends a bit wider
+      hat.drawRect(-35, -35, 70, 6);
       hat.endFill();
       hat.zIndex = 12;
       head.addChild(hat);
