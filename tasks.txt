@@ -15,3 +15,5 @@
 - Paw whack animation lasts longer with a three-stage motion, the paw enlarges as it swings, and the WHACK text appears over a yellow starburst.
 - Current color selections are clearly highlighted in the character creator.
 - Add black as a selectable muzzle color.
+- Saved cat characters can be stored with names and appear in a left-side list with miniature cat thumbnails that load on click.
+- A name field and save button beneath the cat update an existing entry or create a new one when saving with a new name.
