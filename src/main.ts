@@ -18,6 +18,13 @@ type CatColors = {
 
 type Accessory = 'none' | 'topHat' | 'necklace';
 
+// Representation of a stored cat entry with a name and its appearance.
+type SavedCat = {
+  name: string;
+  colors: CatColors;
+  accessory: Accessory;
+};
+
 function shadeColor(color: number, percent: number): number {
   const r = (color >> 16) & 0xff;
   const g = (color >> 8) & 0xff;
@@ -124,6 +131,40 @@ async function start(): Promise<void> {
 
   // Container for the avatar model
   const avatarContainer = new PIXI.Container();
+
+  // Container showing saved cat entries with miniature previews.
+  const savedCatsContainer = new PIXI.Container();
+  let savedCats: SavedCat[] = [];
+  const savedCatsJson = localStorage.getItem('savedCats');
+  if (savedCatsJson) {
+    try {
+      savedCats = JSON.parse(savedCatsJson) as SavedCat[];
+    } catch {
+      /* ignore malformed saved data */
+    }
+  }
+
+  // Name input and save button for editing and storing cats.
+  const nameInput = document.getElementById('cat-name') as HTMLInputElement;
+  const saveBtn = document.getElementById('save-cat-btn') as HTMLButtonElement;
+
+  saveBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) return;
+    const entry: SavedCat = {
+      name,
+      colors: { ...currentColors },
+      accessory: currentAccessory,
+    };
+    const existingIndex = savedCats.findIndex((c) => c.name === name);
+    if (existingIndex >= 0) {
+      savedCats[existingIndex] = entry;
+    } else {
+      savedCats.push(entry);
+    }
+    localStorage.setItem('savedCats', JSON.stringify(savedCats));
+    renderSavedCats();
+  });
 
   function redrawCat(): void {
     if (currentCat) {
@@ -704,6 +745,8 @@ async function start(): Promise<void> {
     buttonBar.style.display = 'none';
     doneBtn.style.display = 'block';
     colorButtonsDiv.style.display = 'flex';
+    nameInput.style.display = 'block';
+    saveBtn.style.display = 'block';
     updateColorButtonHighlights();
 
     if (!currentCat) {
@@ -712,6 +755,11 @@ async function start(): Promise<void> {
       app.stage.addChild(avatarContainer);
     }
 
+    if (!app.stage.children.includes(savedCatsContainer)) {
+      app.stage.addChild(savedCatsContainer);
+    }
+    renderSavedCats();
+
     positionAvatar();
   }
 
@@ -719,6 +767,8 @@ async function start(): Promise<void> {
     buttonBar.style.display = 'flex';
     doneBtn.style.display = 'none';
     colorButtonsDiv.style.display = 'none';
+    nameInput.style.display = 'none';
+    saveBtn.style.display = 'none';
 
     if (currentCat) {
       avatarContainer.removeChild(currentCat);
@@ -726,11 +776,22 @@ async function start(): Promise<void> {
       currentCat.destroy();
       currentCat = null;
     }
+    if (app.stage.children.includes(savedCatsContainer)) {
+      app.stage.removeChild(savedCatsContainer);
+      savedCatsContainer.removeChildren().forEach((c) => c.destroy());
+    }
   }
 
   function positionAvatar(): void {
-    if (!currentCat) return;
-    currentCat.position.set(app.screen.width / 2, app.screen.height / 2);
+    if (currentCat) {
+      currentCat.position.set(app.screen.width / 2, app.screen.height / 2);
+    }
+    const itemHeight = 60;
+    const totalHeight = savedCats.length * itemHeight;
+    savedCatsContainer.position.set(
+      app.screen.width / 2 - 200,
+      app.screen.height / 2 - totalHeight / 2
+    );
   }
 
   createAvatarBtn.addEventListener('click', showCharacterCreator);
@@ -776,6 +837,44 @@ async function start(): Promise<void> {
       }
     });
   });
+
+  // Draw the column of saved cat entries with mini previews and names.
+  function renderSavedCats(): void {
+    savedCatsContainer.removeChildren().forEach((c) => c.destroy());
+    savedCats.forEach((cat, index) => {
+      const item = new PIXI.Container();
+      item.y = index * 60;
+      const mini = createCat(cat.colors, cat.accessory);
+      mini.scale.set(0.3);
+      mini.position.set(30, 40);
+      item.addChild(mini);
+
+      const label = new PIXI.Text(cat.name, {
+        fill: 0xffffff,
+        fontFamily: 'sans-serif',
+        fontSize: 16,
+      });
+      label.x = 60;
+      label.y = 20;
+      item.addChild(label);
+
+      item.interactive = true;
+      item.cursor = 'pointer';
+      item.on('pointertap', () => {
+        currentColors = { ...cat.colors };
+        currentAccessory = cat.accessory;
+        redrawCat();
+        updateColorButtonHighlights();
+        accessoryRadios.forEach((r) => {
+          r.checked = r.value === currentAccessory;
+        });
+        nameInput.value = cat.name;
+      });
+
+      savedCatsContainer.addChild(item);
+    });
+    positionAvatar();
+  }
 
   app.renderer.on('resize', positionAvatar);
 
