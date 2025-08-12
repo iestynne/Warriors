@@ -54,6 +54,24 @@
       border-color: #ffff00;
       border-width: 4px;
     }
+
+    #cat-name-input {
+      display: none;
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+    }
+
+    #save-cat-btn {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+    }
   </style>
 </head>
 <body>
@@ -62,6 +80,8 @@
     <button id="quit-btn">Play</button>
   </div>
   <canvas id="game-canvas"></canvas>
+  <input id="cat-name-input" type="text" placeholder="Cat Name" />
+  <button id="save-cat-btn">Save</button>
   <button id="done-btn" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100;">Done</button>
   <div id="color-buttons">
     <div class="color-column">
