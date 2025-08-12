@@ -18,6 +18,12 @@ type CatColors = {
 
 type Accessory = 'none' | 'topHat' | 'necklace';
 
+type SavedCat = {
+  name: string;
+  colors: CatColors;
+  accessory: Accessory;
+};
+
 function shadeColor(color: number, percent: number): number {
   const r = (color >> 16) & 0xff;
   const g = (color >> 8) & 0xff;
@@ -74,6 +80,10 @@ async function start(): Promise<void> {
   const colorButtons = Array.from(
     document.querySelectorAll<HTMLButtonElement>('.color-btn')
   );
+  const savedCatsDiv = document.getElementById('saved-cats') as HTMLDivElement;
+  const nameInput = document.getElementById('cat-name') as HTMLInputElement;
+  const saveCatBtn = document.getElementById('save-cat-btn') as HTMLButtonElement;
+  const nameSaveBar = document.getElementById('name-save-bar') as HTMLDivElement;
 
   // Highlight the button representing the currently selected color for each part
   function updateColorButtonHighlights(): void {
@@ -91,6 +101,46 @@ async function start(): Promise<void> {
       }
       btn.classList.toggle('selected', matches);
     });
+  }
+
+  async function renderSavedCats(): Promise<void> {
+    thumbApps.forEach((a) => a.destroy(true));
+    thumbApps.length = 0;
+    savedCatsDiv.innerHTML = '';
+    for (const cat of savedCats) {
+      const entry = document.createElement('div');
+      entry.className = 'saved-cat-entry';
+      const canvas = document.createElement('canvas');
+      canvas.width = 50;
+      canvas.height = 50;
+      entry.appendChild(canvas);
+      const label = document.createElement('span');
+      label.textContent = cat.name;
+      entry.appendChild(label);
+      savedCatsDiv.appendChild(entry);
+
+      const t = new PIXI.Application();
+      await t.init({ view: canvas, width: 50, height: 50, backgroundAlpha: 0 });
+      const mini = createCat(cat.colors, cat.accessory);
+      mini.scale.set(0.3);
+      mini.position.set(25, 35);
+      t.stage.addChild(mini);
+      thumbApps.push(t);
+
+      entry.addEventListener('click', () => {
+        currentColors = { ...cat.colors };
+        currentAccessory = cat.accessory;
+        currentCatName = cat.name;
+        nameInput.value = cat.name;
+        localStorage.setItem('catColors', JSON.stringify(currentColors));
+        localStorage.setItem('catAccessory', currentAccessory);
+        accessoryRadios.forEach((r) => {
+          r.checked = r.value === currentAccessory;
+        });
+        redrawCat();
+        updateColorButtonHighlights();
+      });
+    }
   }
 
   const defaultColors: CatColors = {
@@ -121,6 +171,18 @@ async function start(): Promise<void> {
   if (savedAccessory === 'topHat' || savedAccessory === 'necklace' || savedAccessory === 'none') {
     currentAccessory = savedAccessory as Accessory;
   }
+
+  let savedCats: SavedCat[] = [];
+  const savedCatsStr = localStorage.getItem('savedCats');
+  if (savedCatsStr) {
+    try {
+      savedCats = JSON.parse(savedCatsStr) as SavedCat[];
+    } catch {
+      /* ignore malformed saved cat data */
+    }
+  }
+  const thumbApps: PIXI.Application[] = [];
+  let currentCatName = '';
 
   // Container for the avatar model
   const avatarContainer = new PIXI.Container();
@@ -704,6 +766,10 @@ async function start(): Promise<void> {
     buttonBar.style.display = 'none';
     doneBtn.style.display = 'block';
     colorButtonsDiv.style.display = 'flex';
+    savedCatsDiv.style.display = 'flex';
+    nameSaveBar.style.display = 'block';
+    nameInput.value = currentCatName;
+    void renderSavedCats();
     updateColorButtonHighlights();
 
     if (!currentCat) {
@@ -719,6 +785,8 @@ async function start(): Promise<void> {
     buttonBar.style.display = 'flex';
     doneBtn.style.display = 'none';
     colorButtonsDiv.style.display = 'none';
+    savedCatsDiv.style.display = 'none';
+    nameSaveBar.style.display = 'none';
 
     if (currentCat) {
       avatarContainer.removeChild(currentCat);
@@ -776,6 +844,25 @@ async function start(): Promise<void> {
       }
     });
   });
+
+  saveCatBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    if (!name) {
+      return;
+    }
+    const existing = savedCats.find((c) => c.name === name);
+    if (existing) {
+      existing.colors = { ...currentColors };
+      existing.accessory = currentAccessory;
+    } else {
+      savedCats.push({ name, colors: { ...currentColors }, accessory: currentAccessory });
+    }
+    localStorage.setItem('savedCats', JSON.stringify(savedCats));
+    currentCatName = name;
+    await renderSavedCats();
+  });
+
+  await renderSavedCats();
 
   app.renderer.on('resize', positionAvatar);
 
