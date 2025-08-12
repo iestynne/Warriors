@@ -74,6 +74,8 @@ async function start(): Promise<void> {
   const colorButtons = Array.from(
     document.querySelectorAll<HTMLButtonElement>('.color-btn')
   );
+  const nameInput = document.getElementById('cat-name') as HTMLInputElement;
+  const saveCatBtn = document.getElementById('save-cat-btn') as HTMLButtonElement;
 
   // Highlight the button representing the currently selected color for each part
   function updateColorButtonHighlights(): void {
@@ -120,6 +122,63 @@ async function start(): Promise<void> {
   const savedAccessory = localStorage.getItem('catAccessory');
   if (savedAccessory === 'topHat' || savedAccessory === 'necklace' || savedAccessory === 'none') {
     currentAccessory = savedAccessory as Accessory;
+  }
+
+  // Saved cat data with a name for each cat
+  let currentCatName = '';
+  type SavedCat = { name: string; colors: CatColors; accessory: Accessory };
+  const savedCats: SavedCat[] = [];
+  const savedCatsData = localStorage.getItem('savedCats');
+  if (savedCatsData) {
+    try {
+      const parsed = JSON.parse(savedCatsData) as SavedCat[];
+      savedCats.push(...parsed);
+    } catch {
+      /* ignore malformed saved data */
+    }
+  }
+  // Column displaying each saved cat with a miniature preview and name
+  const savedCatsContainer = new PIXI.Container();
+
+  function positionSavedCats(): void {
+    savedCatsContainer.x = app.screen.width / 2 - 200;
+    savedCatsContainer.y = app.screen.height / 2 - savedCatsContainer.height / 2;
+  }
+
+  function redrawSavedCatsList(): void {
+    savedCatsContainer.removeChildren();
+    savedCats.forEach((sc, idx) => {
+      const entry = new PIXI.Container();
+      entry.y = idx * 80;
+      // Miniature cat sits to the left of the saved name
+      const mini = createCat(sc.colors, sc.accessory);
+      mini.scale.set(0.2);
+      mini.position.set(40, 60);
+      entry.addChild(mini);
+      const nameText = new PIXI.Text({ text: sc.name, style: { fill: 0xffffff, fontSize: 14 } });
+      nameText.anchor.set(0, 0.5);
+      nameText.position.set(80, 60);
+      entry.addChild(nameText);
+      entry.eventMode = 'static';
+      entry.cursor = 'pointer';
+      entry.on('pointertap', () => loadSavedCat(sc));
+      savedCatsContainer.addChild(entry);
+    });
+    positionSavedCats();
+  }
+
+  function loadSavedCat(cat: SavedCat): void {
+    currentColors = { ...cat.colors };
+    currentAccessory = cat.accessory;
+    currentCatName = cat.name;
+    nameInput.value = currentCatName;
+    localStorage.setItem('catColors', JSON.stringify(currentColors));
+    localStorage.setItem('catAccessory', currentAccessory);
+    redrawCat();
+    updateColorButtonHighlights();
+    accessoryRadios.forEach((r) => {
+      r.checked = r.value === currentAccessory;
+    });
   }
 
   // Container for the avatar model
@@ -704,6 +763,8 @@ async function start(): Promise<void> {
     buttonBar.style.display = 'none';
     doneBtn.style.display = 'block';
     colorButtonsDiv.style.display = 'flex';
+    nameInput.style.display = 'block';
+    saveCatBtn.style.display = 'block';
     updateColorButtonHighlights();
 
     if (!currentCat) {
@@ -712,13 +773,19 @@ async function start(): Promise<void> {
       app.stage.addChild(avatarContainer);
     }
 
+    app.stage.addChild(savedCatsContainer);
+    redrawSavedCatsList();
     positionAvatar();
+    positionSavedCats();
+    nameInput.value = currentCatName;
   }
 
   function hideCharacterCreator(): void {
     buttonBar.style.display = 'flex';
     doneBtn.style.display = 'none';
     colorButtonsDiv.style.display = 'none';
+    nameInput.style.display = 'none';
+    saveCatBtn.style.display = 'none';
 
     if (currentCat) {
       avatarContainer.removeChild(currentCat);
@@ -726,6 +793,8 @@ async function start(): Promise<void> {
       currentCat.destroy();
       currentCat = null;
     }
+
+    app.stage.removeChild(savedCatsContainer);
   }
 
   function positionAvatar(): void {
@@ -777,7 +846,23 @@ async function start(): Promise<void> {
     });
   });
 
+  saveCatBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) return;
+    currentCatName = name;
+    const existing = savedCats.find((c) => c.name === name);
+    if (existing) {
+      existing.colors = { ...currentColors };
+      existing.accessory = currentAccessory;
+    } else {
+      savedCats.push({ name, colors: { ...currentColors }, accessory: currentAccessory });
+    }
+    localStorage.setItem('savedCats', JSON.stringify(savedCats));
+    redrawSavedCatsList();
+  });
+
   app.renderer.on('resize', positionAvatar);
+  app.renderer.on('resize', positionSavedCats);
 
   // Helper to create a pine tree graphic. The "x" argument represents the
   // horizontal center of the tree and "y" is the bottom of the tree. The tree
