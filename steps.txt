@@ -1,0 +1,230 @@
+Step 1
+add 3 buttons side by side
+the left button says 'Create Avatar'
+the middle button says 'Settings'
+the right button says 'Quit'
+
+
+Step 2
+draw some pine trees below the row of buttons
+
+
+Step 3
+make the pine trees bigger (they should fill the full width of the page)
+also align them to the bottom of the web page
+increase the number of trees from 4 to 5
+remove the trunk (leaves only)
+make the tree shape more detailed (add a couple of zig-zags)
+
+
+Step 4
+move the buttons to the center of the screen (in front of the trees)
+the trees should resize when the window resizes
+maximize/restore should trigger resize (it currently does not)
+
+
+Step 5
+when the 'Create Avatar' button is clicked, show a 3D, blank white cat figure with green eyes
+this will be the character creator screen
+while in this screen, the three main menu buttons should disappear
+instead there should be a 'Done' button at the bottom of the screen
+which closes the character creator and returns to the main menu
+
+
+Step 6
+enhance the cat in the following ways:
+ - add paws at the bottom
+ - add a tail on the floor sticking out to the right side
+ - add a darker patch inside each ear to imply 3d depth
+ - add darker patches behind the green eyes to imply 3d depth
+ - add grey whiskers
+ - add a black nose and mouth
+ - make the muzzle area grey
+
+also change the right hand button on the main menu from 'Quit' to 'Play'
+
+
+Step 7
+more cat changes:
+ - there is a gap between the tail and the body
+ - the paws should have multiple pads each
+ - the lines for the mouth and whiskers are not showing up (draw order?)
+ - the ears need to move down and rotate a bit to the outside of the head
+ - there should be both front and rear paws visible (make the rear ones darker to imply 3d depth)
+ - add vertical front legs connected to the front paws
+ - add vertical pupils to the eyes
+
+
+Step 8
+the mouth and whiskers lines still do not show up, can you fix it?
+
+
+Step 9
+whiskers and mouth are still not showing up, try another fix
+
+additionally, on the character creator screen, add some colored square buttons to the right of the cat
+each color should represent a different fur color which, when clicked, changes the color of the cat's fur
+add 6 buttons with typical car fur colors (white, grey, black, ginger...)
+this color selection should be remembered if you exit and re-enter the character creator screen
+(ideally it should be saved between sessions in a cookie, if you can do that)
+
+
+Step 10
+on the character creator screen
+
+first, add another ellipse on belly of cat (in a different shade)
+
+second, allow customising the color of different parts of the cat separately:
+ - one column of color buttons for the ears
+ - one for the body+head
+ - one for the muzzle
+ - one for the paws
+ - one for the tail
+ - one for the eyes
+
+each column should be suitably labeled with text above it
+each column should have colors suitable for that body part
+
+
+Step 11
+create another color button column to select belly color (it should not be the same as the body color)
+
+also the tail should be drawn behind the body and move it lower down like it's lying on the floor at the same level as the paws... also make the tail a little longer, with a section at the end that curls up
+
+
+Step 12
+make the legs slightly thicker and twice as long
+
+add grey to the set of tail color options
+
+add a separate set of color buttons to customize the tip of the tail
+
+change the blue eye color to be lighter
+
+add a column of color buttons for the nose
+
+
+Step 13
+add a couple of stripey tail color options
+
+lengthen the tail's left side so it joins with the body
+
+add accessory radio buttons with 3 options:
+ - none
+ - top hat (if selected, draws a top hat on the cat's head)
+ - necklace (if selected, draws a necklace on the cat's neck)
+
+as before, all these options should be persisted
+
+
+Step 14
+make sure all color selections are persisted (currently tail tip is not)
+
+legs should move up so the front paws are only slightly lower than the rear paws
+
+replace the pink nose color with a new option "half black and half grey"
+
+make the tail skinnier and slightly higher up
+try to make the dividing line between the two tail colors a straight line
+
+
+Step 15
+1 remove the Settings button
+
+2 lower the top hat so the top of the rim is at the height of the top of the cat's head
+
+3 change the necklace so it is drawn as a catenary arc of small circles, just below the cat's head
+
+4 add grey as a color option for the belly
+
+
+Step 16
+the curve of the necklace is upside down!
+
+
+Step 17
+adjust the cat in the following ways:
+ - the body should be in 2 parts, with the upper part narrower and the lower part wider (to represent hips)
+ - the paws should be turned out slightly from the bottom of the legs
+ - the legs should tilt so they are closer at the bottom
+
+
+Step 18
+add grey as a color option for the ears
+
+add a split green/blue eye color option (which corresponds to one eye green, one eye blue)
+
+make the cat occasionally utter a brief 'meow!' in a word bubble
+
+
+Step 19
+make the 'meow' bubble appear in different places around the cat's head, with a short line between the cat's head and the bubble to denote that the speech is coming from the cat
+
+
+Step 20
+adjust the top hat
+ - make the upper part is slightly taller and taper slightly to the bottom
+ - make the rim thinner and slightly wider
+
+adjust the cat's legs
+ - the individual legs should not taper
+ - they should tilt, so their bottoms are closer than their tops
+
+adjust the cat's paws
+ - they should appear 'turned out', so the paw pads are slightly to the outside of the bottoms of the legs (currently the paws are rotated in the plane of the image, which was not intended)
+
+
+Step 21
+make the meow appear more to the side of the head, as opposed to above/below
+the line connecting the meow to the cat should attach to its mouth not its nose!
+
+
+Step 22
+add an option for reddish eyes (albino style)
+add an option for black paws
+
+
+Step 23
+let's add some animation to the cat to bring it to life!
+intermittently it should do each of these things (they can be timed independently, i.e they can overlap)
+ - one ear twitches
+ - the whiskers twitch
+ - the end of the tail flicks up
+ - the eyes blink
+ - the eyes look around
+ - the cat raises a paw and whacks the screen (with a 'whack' symbol like you might see in a graphic novel)
+
+
+Step 24
+let's improve the 'whack' animation:
+ - it should last longer, so the viewer can see it more clearly
+ - it should be split into 3 stages; first the paw lifts up, then it whacks the screen, then it lowers down again
+ - the paw should enlarge, since it is coming forward to whack the screen in front of the cat
+ - the 'WHACK' text should be surrounded by an anime-style 'starburst' (in a different color) to give it more visual emphasis
+
+
+Step 25
+current color button selections should be clearly highlighted
+also please add black as a muzzle color option
+
+
+Step 26
+add the ability to save multiple named cat characters
+saved characters should be represented as a column of names to the left of the cat 
+each name is one saved cat (click on the name to load that cat, so you can continue to edit it)
+to the left of each name should be drawn a miniature version of that cat (reuse the same cat drawing code, with offset+scale)
+also add an editable name field below the cat and a save button to save your edits to that cat
+(if you add a new name, it should add a new entry to the saved cats list when you click the save button)
+
+
+Step 27
+it only seems to support saving one cat
+it should allow saving multiple cats
+
+so every time you hit 'save' with a new name (that hasn't been saved before)
+that should create a new entry in the saved cats list
+
+also, the list of saved cats should be a bit further to the left
+and the 'Done' button should be changed to 'Back' and moved to the upper left of the screen
+
+
